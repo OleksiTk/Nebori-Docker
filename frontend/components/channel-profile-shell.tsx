@@ -14,12 +14,6 @@ type ChannelProfileShellProps = {
 
 const badgeShowcase = ["Перші 1000 переглядів", "Активний коментатор", "Командний гравець", "Топ автор тижня"];
 
-const channelGroups = [
-  { name: "Frontline Hub", href: "/groups/frontline-hub", role: "Адмін" },
-  { name: "Raid Signals", href: "/groups/raid-signals", role: "Учасник" },
-  { name: "Lore Keepers", href: "/groups/lore-keepers", role: "Модератор" }
-];
-
 const channelFriends = [
   { name: "Raptor", href: "/profile/raptor", role: "Спільний рейдер" },
   { name: "Mira", href: "/profile/mira", role: "Ко-автор гайдів" },
@@ -39,11 +33,6 @@ export function ChannelProfileShell({ handle, displayName, activeTab, hideSideba
   const communityFriends = channelFriends.map((friend) => ({
     ...friend,
     avatar: `https://i.pravatar.cc/72?u=${encodeURIComponent(friend.name)}`
-  }));
-
-  const communityGroups = channelGroups.map((group) => ({
-    ...group,
-    avatar: `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(group.name)}`
   }));
 
   return (
@@ -92,7 +81,7 @@ export function ChannelProfileShell({ handle, displayName, activeTab, hideSideba
             </div>
           </div>
 
-          <p className="mt-2 text-[13px] leading-5 text-nebori-muted">Канал з гайдами, патч-розборами, груповими рейдами та щотижневими добірками.</p>
+          <p className="mt-2 text-[13px] leading-5 text-nebori-muted">Канал з гайдами, патч-розборами та щотижневими добірками.</p>
           <div className="mt-2 flex flex-wrap gap-2 text-[12px] text-nebori-muted">
             <span className="rounded-[3px] border border-[rgba(255,255,255,0.14)] px-2 py-0.5">Підписники: 6.1 тис.</span>
             <span className="rounded-[3px] border border-[rgba(255,255,255,0.14)] px-2 py-0.5">Відео: 48</span>
@@ -145,7 +134,7 @@ export function ChannelProfileShell({ handle, displayName, activeTab, hideSideba
             </div>
           </article>
 
-          <ChannelCommunityBlocks friends={communityFriends} groups={communityGroups} />
+          <ChannelCommunityBlocks friends={communityFriends} />
         </aside>
 
         <div className="order-2 min-w-0 space-y-3 lg:order-1">{children}</div>

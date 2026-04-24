@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -10,7 +10,6 @@ type ProfileHoverCardProps = {
   avatar: string;
   status?: string;
   videosCount?: number;
-  groupsCount?: number;
   subscribers?: string;
   level?: number;
   children: ReactNode;
@@ -23,7 +22,6 @@ export function ProfileHoverCard({
   avatar,
   status = "\u041d\u0435 \u0432 \u043c\u0435\u0440\u0435\u0436\u0456",
   videosCount = 12,
-  groupsCount = 3,
   subscribers = "12.4 \u0442\u0438\u0441.",
   level = 21,
   children,
@@ -113,9 +111,6 @@ export function ProfileHoverCard({
                 </div>
                 <div>
                   {"\u0412\u0456\u0434\u0435\u043e"}: <span className="font-semibold text-[#e6ebf8]">{videosCount}</span>
-                </div>
-                <div>
-                  {"\u0413\u0440\u0443\u043f\u0438"}: <span className="font-semibold text-[#e6ebf8]">{groupsCount}</span>
                 </div>
                 <div>
                   {"\u041f\u0456\u0434\u043f\u0438\u0441\u043d\u0438\u043a\u0438"}: <span className="font-semibold text-nebori-accent">{subscribers}</span>

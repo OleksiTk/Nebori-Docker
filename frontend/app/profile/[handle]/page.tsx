@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { groupActivityPosts, videos } from "@/data/mock";
+import { videos } from "@/data/mock";
 import { ChannelProfileShell } from "@/components/channel-profile-shell";
 
 type PageProps = {
@@ -41,7 +41,6 @@ export default async function ProfilePage({ params }: PageProps) {
   const { handle } = await params;
   const displayName = makeDisplayName(handle);
   const previewVideos = videos.slice(0, 4);
-  const previewActivity = groupActivityPosts[0];
 
   const channelFeed: ChannelFeedItem[] = [
     {
@@ -90,16 +89,6 @@ export default async function ProfilePage({ params }: PageProps) {
       action: "підписався на канал",
       target: "Raid Signals",
       href: "/profile/raid_signals"
-    },
-    {
-      id: "cf-6",
-      type: "post",
-      label: "Пост",
-      time: previewActivity?.time ?? "сьогодні",
-      action: "опублікував пост у групі",
-      target: previewActivity?.group ?? "Frontline Hub",
-      href: `/groups/activity/${previewActivity?.id ?? "g1"}`,
-      previewSeed: previewActivity?.id ?? "g1"
     }
   ];
 

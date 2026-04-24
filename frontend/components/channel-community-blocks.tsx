@@ -12,10 +12,9 @@ type SidebarEntity = {
 
 type ChannelCommunityBlocksProps = {
   friends: SidebarEntity[];
-  groups: SidebarEntity[];
 };
 
-type ModalKind = "friends" | "groups" | null;
+type ModalKind = "friends" | null;
 
 function SidebarList({
   title,
@@ -109,16 +108,14 @@ function ListModal({
   );
 }
 
-export function ChannelCommunityBlocks({ friends, groups }: ChannelCommunityBlocksProps) {
+export function ChannelCommunityBlocks({ friends }: ChannelCommunityBlocksProps) {
   const [open, setOpen] = useState<ModalKind>(null);
 
   return (
     <>
       <SidebarList title="Друзі каналу" items={friends} onOpen={() => setOpen("friends")} />
-      <SidebarList title="Групи каналу" items={groups} onOpen={() => setOpen("groups")} />
 
       {open === "friends" ? <ListModal title="Друзі каналу" items={friends} onClose={() => setOpen(null)} /> : null}
-      {open === "groups" ? <ListModal title="Групи каналу" items={groups} onClose={() => setOpen(null)} /> : null}
     </>
   );
 }

@@ -8,13 +8,11 @@ import logo from "../logo.png";
 
 const navItems = [
   { href: "/", label: "Головна" },
-  { href: "/activity", label: "Активність" },
-  { href: "/shop", label: "Магазин" }
+  { href: "/activity", label: "Активність" }
 ];
 
 const notifications = [
   { id: "n1", text: "IronBand відповів на ваш коментар", time: "2 хв тому", href: "/video/v101" },
-  { id: "n2", text: "Frontline Hub опублікувала новий пост", time: "18 хв тому", href: "/groups/activity" },
   { id: "n3", text: "Нове відео у плейлисті «Мета-сезон #12»", time: "1 год тому", href: "/playlist/pl-meta-02" }
 ];
 
@@ -24,13 +22,11 @@ export function Header() {
   const searchParams = useSearchParams();
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [mobileGroupsOpen, setMobileGroupsOpen] = useState(false);
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
   const avatarMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setAvatarMenuOpen(false);
-    setMobileGroupsOpen(false);
     setMobileProfileOpen(false);
   }, [pathname]);
 
@@ -61,7 +57,6 @@ export function Header() {
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
-  const groupsActive = pathname.startsWith("/groups/");
   const profileActive =
     pathname.startsWith("/profile/") ||
     pathname.startsWith("/history") ||
@@ -123,35 +118,6 @@ export function Header() {
               </Link>
             </div>
           </div>
-
-          <div className="group relative">
-            <Link
-              href="/groups/activity"
-              className={`flex items-center gap-1 rounded-[4px] px-3 py-2 text-lg leading-none transition-colors duration-150 ${
-                groupsActive ? "font-semibold text-nebori-accent" : "text-nebori-muted hover:text-nebori-text"
-              }`}
-            >
-              Групи
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 12 12"
-                className="h-3.5 w-3.5 transition-transform duration-150 group-hover:rotate-180 group-focus-within:rotate-180"
-              >
-                <path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
-            <div className="invisible absolute left-0 top-full z-50 mt-1 w-44 rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] p-1 opacity-0 transition duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
-              <Link href="/groups/activity" className="block rounded-[3px] px-3 py-2 text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text">
-                Стрічка
-              </Link>
-              <Link href="/groups/catalog" className="block rounded-[3px] px-3 py-2 text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text">
-                Каталог
-              </Link>
-              <Link href="/studio?createGroup=1" className="block rounded-[3px] px-3 py-2 text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text">
-                Створити
-              </Link>
-            </div>
-          </div>
         </div>
 
         <div className="flex w-full min-w-0 items-center gap-2 sm:flex-1 sm:min-w-[260px] sm:justify-end">
@@ -166,7 +132,7 @@ export function Header() {
                   submitSearch();
                 }
               }}
-              placeholder="Пошук відео, груп, користувачів..."
+              placeholder="Пошук відео, користувачів..."
               className="w-full rounded-[4px] border border-[rgba(255,255,255,0.12)] bg-nebori-panel py-2 pl-3 pr-10 text-sm text-nebori-text outline-none"
             />
             <button
@@ -273,37 +239,7 @@ export function Header() {
             <button
               type="button"
               onClick={() => {
-                setMobileGroupsOpen((v) => !v);
-                setMobileProfileOpen(false);
-              }}
-              className={`flex items-center gap-1 rounded-[4px] px-1.5 py-1.5 text-[13px] leading-none ${groupsActive ? "font-semibold text-nebori-accent" : "bg-nebori-panel text-nebori-muted"}`}
-            >
-              Групи
-              <svg aria-hidden="true" viewBox="0 0 12 12" className={`h-3 w-3 transition-transform ${mobileGroupsOpen ? "rotate-180" : ""}`}>
-                <path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
-            {mobileGroupsOpen ? (
-              <div className="absolute right-0 top-full z-50 mt-1 w-44 max-w-[92vw] rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] p-1">
-                <Link href="/groups/activity" onClick={() => setMobileGroupsOpen(false)} className="block rounded-[3px] px-3 py-2 text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text">
-                  Стрічка
-                </Link>
-                <Link href="/groups/catalog" onClick={() => setMobileGroupsOpen(false)} className="block rounded-[3px] px-3 py-2 text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text">
-                  Каталог
-                </Link>
-                <Link href="/studio?createGroup=1" onClick={() => setMobileGroupsOpen(false)} className="block rounded-[3px] px-3 py-2 text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text">
-                  Створити
-                </Link>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => {
                 setMobileProfileOpen((v) => !v);
-                setMobileGroupsOpen(false);
               }}
               className={`flex items-center gap-1 rounded-[4px] px-1.5 py-1.5 text-[13px] leading-none ${profileActive ? "font-semibold text-nebori-accent" : "bg-nebori-panel text-nebori-muted"}`}
             >

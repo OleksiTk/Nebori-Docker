@@ -12,7 +12,7 @@ type SearchPageContentProps = {
   initialQuery: string;
 };
 
-type SearchTab = "videos" | "playlists" | "groups" | "channels";
+type SearchTab = "videos" | "playlists" | "channels";
 type DurationFilter = "any" | "short" | "medium" | "long";
 type DateFilter = "any" | "day" | "week" | "month";
 type VideoSort = "relevance" | "views" | "latest";
@@ -24,16 +24,6 @@ type PlaylistResult = {
   videos: number;
   views: string;
   updated: string;
-};
-
-type GroupResult = {
-  id: string;
-  name: string;
-  description: string;
-  tags: string[];
-  members: string;
-  online: string;
-  posts: string;
 };
 
 type ChannelResult = {
@@ -48,7 +38,6 @@ type ChannelResult = {
 const tabs: Array<{ id: SearchTab; label: string }> = [
   { id: "videos", label: "Відео" },
   { id: "playlists", label: "Плейлисти" },
-  { id: "groups", label: "Групи" },
   { id: "channels", label: "Канали" }
 ];
 
@@ -59,13 +48,6 @@ const playlists: PlaylistResult[] = [
   { id: "pl-pvp-05", title: "PvP-позиції на картах", author: "DeltaNox", videos: 27, views: "117 тис.", updated: "вчора" },
   { id: "pl-clips-06", title: "Кращі кліпи спільноти", author: "Community Hub", videos: 54, views: "324 тис.", updated: "сьогодні" },
   { id: "pl-lore-07", title: "Лор сезону: повна хронологія", author: "Lore Keepers", videos: 16, views: "49 тис.", updated: "4 дні тому" }
-];
-
-const groups: GroupResult[] = [
-  { id: "frontline-hub", name: "Frontline Hub", description: "Координація рейдів, тактичні обговорення, щоденні збори складів.", tags: ["Тактика", "Команди", "Рейди"], members: "12 480", online: "840", posts: "1 320" },
-  { id: "raid-signals", name: "Raid Signals", description: "Швидкий пошук команди, ролі та спільні вечірні сесії.", tags: ["LFG", "Голос", "Події"], members: "8 910", online: "612", posts: "970" },
-  { id: "market-watch", name: "Market Watch", description: "Аналітика токенів, економіка та огляди змін після патчів.", tags: ["Економіка", "Токени", "Аналітика"], members: "6 304", online: "421", posts: "714" },
-  { id: "lore-keepers", name: "Lore Keepers", description: "Теорії та хронологія сезону, обговорення лору Nebori.", tags: ["Лор", "Теорії", "Обговорення"], members: "4 932", online: "255", posts: "503" }
 ];
 
 function durationToSeconds(value: string): number {
@@ -166,11 +148,6 @@ export function SearchPageContent({ videos, initialQuery }: SearchPageContentPro
     [normalizedQuery]
   );
 
-  const filteredGroups = useMemo(
-    () => groups.filter((item) => containsQuery(normalizedQuery, item.name, item.description, item.tags.join(" "))),
-    [normalizedQuery]
-  );
-
   const filteredChannels = useMemo(
     () => channelResults.filter((item) => containsQuery(normalizedQuery, item.name, item.handle)),
     [channelResults, normalizedQuery]
@@ -179,7 +156,6 @@ export function SearchPageContent({ videos, initialQuery }: SearchPageContentPro
   const totalByTab = {
     videos: filteredVideos.length,
     playlists: filteredPlaylists.length,
-    groups: filteredGroups.length,
     channels: filteredChannels.length
   };
 
@@ -203,7 +179,7 @@ export function SearchPageContent({ videos, initialQuery }: SearchPageContentPro
                 submitSearch();
               }
             }}
-            placeholder="Пошук відео, плейлистів, груп і каналів..."
+            placeholder="Пошук відео, плейлистів і каналів..."
             className="h-9 min-w-[220px] flex-1 rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
           />
           <button type="button" onClick={submitSearch} className="btn-primary rounded-[4px] px-3 py-1.5 text-sm">
@@ -298,43 +274,19 @@ export function SearchPageContent({ videos, initialQuery }: SearchPageContentPro
           )
         ) : null}
 
-        {tab === "groups" ? (
-          filteredGroups.length > 0 ? (
-            <div className="divide-y divide-[rgba(255,255,255,0.08)]">
-              {filteredGroups.map((item) => (
-                <article key={item.id} className="grid grid-cols-1 gap-3 py-3 first:pt-0 last:pb-0 sm:grid-cols-[88px_minmax(0,1fr)]">
-                  <Link href={`/groups/${item.id}`} className="block overflow-hidden rounded-[4px] border border-[rgba(255,255,255,0.14)]">
-                    <img src={`https://picsum.photos/seed/search-group-${item.id}/176/176`} alt={item.name} className="h-[88px] w-[88px] object-cover" loading="lazy" />
-                  </Link>
-                  <div className="min-w-0">
-                    <Link href={`/groups/${item.id}`} className="text-[15px] font-semibold leading-5 text-[#e6e9f3] hover:text-nebori-accent">
-                      {item.name}
-                    </Link>
-                    <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-nebori-muted">{item.description}</p>
-                    <p className="mt-1 text-[12px] leading-4 text-nebori-muted">{item.tags.map((tag) => `#${tag}`).join(" ")}</p>
-                    <p className="mt-1 text-[12px] leading-4 text-nebori-muted">Учасників: {item.members} • Онлайн: {item.online} • Постів: {item.posts}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-nebori-muted">За вашим запитом немає груп.</p>
-          )
-        ) : null}
-
         {tab === "channels" ? (
           filteredChannels.length > 0 ? (
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {filteredChannels.map((channel, index) => (
                 <article key={channel.handle} className="rounded-[4px] border border-[rgba(255,255,255,0.1)] bg-[#121826] p-2.5">
                   <div className="flex items-center gap-2">
-                    <ProfileHoverCard handle={channel.handle} name={channel.name} avatar={channel.avatar} videosCount={channel.videos} groupsCount={2} subscribers={channel.subscribers}>
+                    <ProfileHoverCard handle={channel.handle} name={channel.name} avatar={channel.avatar} videosCount={channel.videos} subscribers={channel.subscribers}>
                       <Link href={`/profile/${channel.handle}`} className="block">
                         <img src={channel.avatar} alt={channel.name} className="h-10 w-10 rounded-[3px] border border-[rgba(255,255,255,0.2)] object-cover" loading="lazy" />
                       </Link>
                     </ProfileHoverCard>
                     <div className="min-w-0">
-                      <ProfileHoverCard handle={channel.handle} name={channel.name} avatar={channel.avatar} videosCount={channel.videos} groupsCount={2} subscribers={channel.subscribers}>
+                      <ProfileHoverCard handle={channel.handle} name={channel.name} avatar={channel.avatar} videosCount={channel.videos} subscribers={channel.subscribers}>
                         <Link href={`/profile/${channel.handle}`} className="block truncate text-sm font-semibold text-[#d6dcec] hover:text-nebori-accent">
                           {channel.name}
                         </Link>
