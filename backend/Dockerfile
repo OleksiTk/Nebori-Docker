@@ -17,5 +17,5 @@ COPY . .
 # Відкриваємо порт 8000
 EXPOSE 8000
 
-# Запускаємо сервер розробки (для старту цього достатньо)
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Застосовуємо міграції та запускаємо сервер розробки
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py runserver 0.0.0.0:8000"]

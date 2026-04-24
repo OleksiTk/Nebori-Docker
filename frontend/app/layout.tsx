@@ -60,7 +60,7 @@ export default function RootLayout({
               </Link>
             </div>
             <p className="text-sm text-nebori-muted">
-              Платформа для відео, спільнот і каналів.
+              Платформа для відео, спільнот і каналів .
             </p>
             <p className="text-sm text-nebori-muted sm:text-right">
               © 2026 Nebori
