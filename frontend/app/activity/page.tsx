@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ProfileHoverCard } from "@/components/profile-hover-card";
 
-type ActivityType = "Відео" | "Група" | "Ачівка" | "Публікація" | "Підписка";
+type ActivityType = "Відео" | "Ачівка" | "Публікація" | "Підписка";
 
 type ActivityItem = {
   id: string;
@@ -16,16 +16,13 @@ type ActivityItem = {
 
 const feed: ActivityItem[] = [
   { id: "a1", actor: "Іван", action: "подивився", target: "Огляд патчу Expedition 2.1", type: "Відео", time: "1 год тому", href: "/video/v101", previewSeed: "v101" },
-  { id: "a2", actor: "Марія", action: "вступила в групу", target: "Raid Signals", type: "Група", time: "2 год тому", href: "/groups/raid-signals" },
   { id: "a3", actor: "Олег", action: "отримав ачівку", target: "Перші 1000 переглядів", type: "Ачівка", time: "3 год тому", href: "/profile/oleg" },
-  { id: "a4", actor: "Daria", action: "опублікувала відео у групі", target: "Nebori Devlog #3: групи", type: "Публікація", time: "4 год тому", href: "/video/v103", previewSeed: "v103" },
   { id: "a5", actor: "Raptor", action: "підписався на автора", target: "Nebori Team", type: "Підписка", time: "5 год тому", href: "/profile/nebori_team" },
   { id: "a6", actor: "Mira", action: "подивилася", target: "Гайд по швидкому фарму токенів", type: "Відео", time: "6 год тому", href: "/video/v104", previewSeed: "v104" }
 ];
 
 const typeTone: Record<ActivityType, string> = {
   Відео: "border-[rgba(80,156,255,0.35)] bg-[rgba(80,156,255,0.12)] text-[#9ec7ff]",
-  Група: "border-[rgba(245,197,24,0.35)] bg-[rgba(245,197,24,0.12)] text-nebori-accent",
   Ачівка: "border-[rgba(120,224,160,0.35)] bg-[rgba(120,224,160,0.12)] text-[#8ee3b0]",
   Публікація: "border-[rgba(189,154,255,0.35)] bg-[rgba(189,154,255,0.12)] text-[#c9b3ff]",
   Підписка: "border-[rgba(255,255,255,0.24)] bg-[rgba(255,255,255,0.08)] text-[#d6dcec]"
@@ -50,7 +47,6 @@ export default function ActivityPage() {
                     name={item.actor}
                     avatar={`https://i.pravatar.cc/72?u=${encodeURIComponent(item.actor)}`}
                     videosCount={18}
-                    groupsCount={2}
                     subscribers="6.1 тис."
                   >
                     <img
@@ -77,7 +73,6 @@ export default function ActivityPage() {
                       name={item.actor}
                       avatar={`https://i.pravatar.cc/72?u=${encodeURIComponent(item.actor)}`}
                       videosCount={18}
-                      groupsCount={2}
                       subscribers="6.1 тис."
                     >
                       <Link href={`/profile/${item.actor.toLowerCase().replace(/\s+/g, "_")}`} className="cursor-pointer font-semibold text-nebori-accent hover:underline">
