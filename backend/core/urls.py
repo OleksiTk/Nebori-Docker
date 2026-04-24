@@ -16,13 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.http import HttpResponse
 
-# Проста функція, яка повертає текст
-def hello_world(request):
-    return HttpResponse("Hello World з Django!")
+from .views import hello_world, register_user
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/hello/', hello_world), # Наш новий ендпоінт
+    path('api/hello/', hello_world),
+    path('api/register/', register_user),
 ]
