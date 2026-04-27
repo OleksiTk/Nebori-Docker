@@ -6,6 +6,7 @@ import "./globals.css";
 import { Header } from "@/components/header";
 import logo from "../logo.png";
 import { Suspense } from "react";
+import { AuthProvider } from "@/components/auth-provider";
 
 export const metadata: Metadata = {
   title: "NEBORI",
@@ -38,35 +39,37 @@ export default function RootLayout({
       <body
         className={`${headingFont.variable} ${bodyFont.variable} ${monoFont.variable} flex min-h-screen flex-col`}
       >
-        <Suspense
-          fallback={
-            <header className="h-[60px] w-full border-b border-[rgba(255,255,255,0.08)] bg-[rgba(11,15,24,0.88)]" />
-          }
-        >
-          <Header />
-        </Suspense>
-        <main className="mx-auto w-full max-w-[1720px] flex-1 px-4 py-6 xl:px-6">
-          {children}
-        </main>
-        <footer className="border-t border-[rgba(255,255,255,0.08)] bg-[rgba(11,15,24,0.88)]">
-          <div className="mx-auto grid w-full max-w-[1720px] grid-cols-1 items-center gap-2 px-4 py-3 text-center sm:grid-cols-3 sm:text-left xl:px-6">
-            <div className="flex items-center justify-center sm:justify-start">
-              <Link href="/" className="inline-flex items-center">
-                <Image
-                  src={logo}
-                  alt="NEBORI"
-                  className="h-7 w-auto object-contain"
-                />
-              </Link>
+        <AuthProvider>
+          <Suspense
+            fallback={
+              <header className="h-[60px] w-full border-b border-[rgba(255,255,255,0.08)] bg-[rgba(11,15,24,0.88)]" />
+            }
+          >
+            <Header />
+          </Suspense>
+          <main className="mx-auto w-full max-w-[1720px] flex-1 px-4 py-6 xl:px-6">
+            {children}
+          </main>
+          <footer className="border-t border-[rgba(255,255,255,0.08)] bg-[rgba(11,15,24,0.88)]">
+            <div className="mx-auto grid w-full max-w-[1720px] grid-cols-1 items-center gap-2 px-4 py-3 text-center sm:grid-cols-3 sm:text-left xl:px-6">
+              <div className="flex items-center justify-center sm:justify-start">
+                <Link href="/" className="inline-flex items-center">
+                  <Image
+                    src={logo}
+                    alt="NEBORI"
+                    className="h-7 w-auto object-contain"
+                  />
+                </Link>
+              </div>
+              <p className="text-sm text-nebori-muted">
+                Платформа для відео, спільнот і каналів .
+              </p>
+              <p className="text-sm text-nebori-muted sm:text-right">
+                © 2026 Nebori
+              </p>
             </div>
-            <p className="text-sm text-nebori-muted">
-              Платформа для відео, спільнот і каналів .
-            </p>
-            <p className="text-sm text-nebori-muted sm:text-right">
-              © 2026 Nebori
-            </p>
-          </div>
-        </footer>
+          </footer>
+        </AuthProvider>
       </body>
     </html>
   );

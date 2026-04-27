@@ -5,12 +5,12 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import logo from "../logo.png";
+import { useAuth } from "@/components/auth-provider";
 
 const navItems = [
   { href: "/", label: "Головна" },
   { href: "/activity", label: "Активність" },
   { href: "/shop", label: "Магазин" },
-  { href: "/register", label: "Реєстрація" },
 ];
 
 const notifications = [
@@ -38,6 +38,7 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isAuthenticated, user, logout } = useAuth();
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [mobileGroupsOpen, setMobileGroupsOpen] = useState(false);
@@ -85,6 +86,7 @@ export function Header() {
 
   const groupsActive = pathname.startsWith("/groups/");
   const profileActive =
+    pathname === "/profile" ||
     pathname.startsWith("/profile/") ||
     pathname.startsWith("/history") ||
     pathname.startsWith("/playlists");
@@ -150,7 +152,7 @@ export function Header() {
             </button>
             <div className="invisible absolute left-0 top-full z-50 mt-1 w-44 rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] p-1 opacity-0 transition duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
               <Link
-                href="/profile/nebori_user"
+                href="/profile"
                 className="block rounded-[3px] px-3 py-2 text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text"
               >
                 Мій профіль
@@ -314,27 +316,41 @@ export function Header() {
           <div ref={avatarMenuRef} className="group relative">
             <button
               type="button"
-              onClick={() => setAvatarMenuOpen((v) => !v)}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  router.push("/register");
+                  return;
+                }
+                setAvatarMenuOpen((v) => !v);
+              }}
               className="flex h-9 w-9 items-center justify-center border border-[rgba(255,255,255,0.12)] bg-nebori-panel p-0.5"
               aria-label="Меню профілю"
               aria-expanded={avatarMenuOpen}
             >
               <img
                 src="https://i.pravatar.cc/40?img=2"
-                alt="@nebori_user"
+                alt={`@${user?.username ?? "guest"}`}
                 className="h-7 w-7 shrink-0 rounded-none border border-[rgba(255,255,255,0.16)] object-cover"
               />
             </button>
             <div
-              className={`absolute right-0 top-full z-50 mt-1 w-52 rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] p-1 transition duration-150 md:group-hover:visible md:group-hover:opacity-100 md:group-focus-within:visible md:group-focus-within:opacity-100 ${
-                avatarMenuOpen ? "visible opacity-100" : "invisible opacity-0"
+              className={`absolute right-0 top-full z-50 mt-1 w-52 rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] p-1 transition duration-150 ${
+                isAuthenticated
+                  ? `md:group-hover:visible md:group-hover:opacity-100 md:group-focus-within:visible md:group-focus-within:opacity-100 ${
+                      avatarMenuOpen
+                        ? "visible opacity-100"
+                        : "invisible opacity-0"
+                    }`
+                  : "pointer-events-none invisible opacity-0"
               }`}
             >
               <div className="mb-1 rounded-[3px] border border-[rgba(255,255,255,0.08)] px-3 py-2">
                 <p className="text-sm font-semibold text-nebori-text">
-                  Nebori User
+                  {user?.username ?? "Nebori User"}
                 </p>
-                <p className="text-xs text-nebori-muted">@nebori_user</p>
+                <p className="text-xs text-nebori-muted">
+                  @{user?.username ?? "nebori_user"}
+                </p>
               </div>
               <Link
                 href="/studio?upload=1"
@@ -358,7 +374,7 @@ export function Header() {
                 Налаштування
               </Link>
               <Link
-                href="/profile/nebori_user"
+                href="/profile"
                 onClick={() => setAvatarMenuOpen(false)}
                 className="block w-full rounded-[3px] px-3 py-2 text-left text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text"
               >
@@ -366,6 +382,10 @@ export function Header() {
               </Link>
               <button
                 type="button"
+                onClick={() => {
+                  logout();
+                  setAvatarMenuOpen(false);
+                }}
                 className="block w-full rounded-[3px] px-3 py-2 text-left text-sm text-[#f3b3b3] hover:bg-[rgba(255,255,255,0.06)] hover:text-[#ffd4d4]"
               >
                 Вийти
@@ -469,7 +489,7 @@ export function Header() {
             {mobileProfileOpen ? (
               <div className="absolute right-0 top-full z-50 mt-1 w-44 max-w-[92vw] rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] p-1">
                 <Link
-                  href="/profile/nebori_user"
+                  href="/profile"
                   onClick={() => setMobileProfileOpen(false)}
                   className="block rounded-[3px] px-3 py-2 text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text"
                 >
