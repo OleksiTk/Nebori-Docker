@@ -13,26 +13,16 @@ const navItems = [
   { href: "/shop", label: "Магазин" },
 ];
 
-const notifications = [
-  {
-    id: "n1",
-    text: "IronBand відповів на ваш коментар",
-    time: "2 хв тому",
-    href: "/video/v101",
-  },
-  {
-    id: "n2",
-    text: "Frontline Hub опублікувала новий пост",
-    time: "18 хв тому",
-    href: "/groups/activity",
-  },
-  {
-    id: "n3",
-    text: "Нове відео у плейлисті «Мета-сезон #12»",
-    time: "1 год тому",
-    href: "/playlist/pl-meta-02",
-  },
-];
+const NOTIFICATIONS_API_URL = (
+  process.env.NEXT_PUBLIC_NOTIFICATIONS_API_URL ?? "http://localhost:8004"
+).replace(/\/$/, "");
+
+type Notification = {
+  id: number;
+  message: string;
+  created_at: string;
+  is_read: boolean;
+};
 
 export function Header() {
   const pathname = usePathname();
@@ -43,7 +33,21 @@ export function Header() {
   const [searchValue, setSearchValue] = useState("");
   const [mobileGroupsOpen, setMobileGroupsOpen] = useState(false);
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
+  const [dbNotifications, setDbNotifications] = useState<Notification[]>([]);
   const avatarMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      fetch(`${NOTIFICATIONS_API_URL}/api/notifications/?user_id=${user.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setDbNotifications(data);
+          }
+        })
+        .catch((err) => console.error("Failed to fetch notifications:", err));
+    }
+  }, [isAuthenticated, user?.id]);
 
   useEffect(() => {
     setAvatarMenuOpen(false);
@@ -283,26 +287,33 @@ export function Header() {
                 />
               </svg>
               <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-nebori-accent px-1 text-[10px] font-semibold text-black">
-                3
+                {dbNotifications.filter((n) => !n.is_read).length}
               </span>
             </button>
             <div className="invisible absolute right-0 top-full z-50 mt-1 w-[320px] overflow-hidden rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] opacity-0 transition duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
               <div className="border-b border-[rgba(255,255,255,0.08)] px-3 py-2 text-sm font-semibold text-nebori-text">
                 Сповіщення
               </div>
-              <div className="divide-y divide-[rgba(255,255,255,0.08)]">
-                {notifications.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    className="block px-3 py-2 hover:bg-[rgba(255,255,255,0.04)]"
-                  >
-                    <p className="line-clamp-2 text-[13px] leading-5 text-[#dde4f3]">
-                      {item.text}
-                    </p>
-                    <p className="text-[11px] text-nebori-muted">{item.time}</p>
-                  </Link>
-                ))}
+              <div className="divide-y divide-[rgba(255,255,255,0.08)] max-h-[400px] overflow-y-auto">
+                {dbNotifications.length > 0 ? (
+                  dbNotifications.map((item) => (
+                    <div
+                      key={item.id}
+                      className="block px-3 py-2 hover:bg-[rgba(255,255,255,0.04)]"
+                    >
+                      <p className="line-clamp-2 text-[13px] leading-5 text-[#dde4f3]">
+                        {item.message}
+                      </p>
+                      <p className="text-[11px] text-nebori-muted">
+                        {new Date(item.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-3 py-4 text-center text-xs text-nebori-muted">
+                    Немає нових сповіщень
+                  </div>
+                )}
               </div>
               <Link
                 href="/activity"
