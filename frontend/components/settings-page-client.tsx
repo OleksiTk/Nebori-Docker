@@ -35,7 +35,6 @@ export function SettingsPageClient() {
   const [compactCards, setCompactCards] = useState(false);
   const [showOnline, setShowOnline] = useState(true);
   const [notifyComments, setNotifyComments] = useState(true);
-  const [notifyGroups, setNotifyGroups] = useState(true);
   const [notifySubscriptions, setNotifySubscriptions] = useState(true);
   const [emailDigest, setEmailDigest] = useState(false);
   const [historyEnabled, setHistoryEnabled] = useState(true);
@@ -98,7 +97,6 @@ export function SettingsPageClient() {
         <section className="space-y-2 rounded-[4px] border border-[rgba(255,255,255,0.08)] p-3">
           <h2 className="text-lg font-semibold text-[#e6e9f3]">Сповіщення</h2>
           <Toggle checked={notifyComments} onChange={setNotifyComments} label="Коментарі" hint="Сповіщати про відповіді та згадки." />
-          <Toggle checked={notifyGroups} onChange={setNotifyGroups} label="Групи" hint="Оновлення з груп, де ви перебуваєте." />
           <Toggle checked={notifySubscriptions} onChange={setNotifySubscriptions} label="Підписки" hint="Нові відео від каналів, на які ви підписані." />
           <Toggle checked={emailDigest} onChange={setEmailDigest} label="Email-дайджест" hint="Щотижневе зведення активності на пошту." />
         </section>

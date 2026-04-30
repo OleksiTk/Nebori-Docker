@@ -43,8 +43,7 @@ function buildChannelFeed(handle: string, displayName: string): ChannelActivityI
   return [
     { id: "ca-1", actor: actorName, action: "опублікував відео", target: "Огляд патчу Expedition 2.1", type: "video", label: "Відео", time: "1 год тому", href: "/video/v101", previewSeed: "v101" },
     { id: "ca-2", actor: actorName, action: "отримав ачивку", target: "Перші 1000 переглядів", type: "achievement", label: "Ачивка", time: "2 год тому", href: `/profile/${handle}` },
-    { id: "ca-3", actor: actorName, action: "відповів на коментар під відео", target: "Турнір загону: фінальна гра", type: "comment", label: "Коментар", time: "3 год тому", href: "/video/v102" },
-    { id: "ca-4", actor: actorName, action: "опублікував пост у групі", target: "Frontline Hub", type: "post", label: "Пост", time: "4 год тому", href: "/groups/frontline-hub" },
+    { id: "ca-3", actor: actorName, action: "відповів на коментар под відео", target: "Турнір загону: фінальна гра", type: "comment", label: "Коментар", time: "3 год тому", href: "/video/v102" },
     { id: "ca-5", actor: actorName, action: "підписався на канал", target: "Raid Signals", type: "subscription", label: "Підписка", time: "5 год тому", href: "/profile/raid_signals" },
     { id: "ca-6", actor: actorName, action: "оновив плейлист", target: "Кращі кліпи спільноти", type: "playlist", label: "Плейлист", time: "вчора", href: "/playlist/pl-clips-06", previewSeed: "pl-clips-06" }
   ];
@@ -71,7 +70,7 @@ export default async function ProfileChannelActivityPage({ params }: PageProps) 
               <article key={item.id} className="px-3 py-3 hover:bg-[rgba(255,255,255,0.02)]">
                 <div className="grid grid-cols-[44px_minmax(0,1fr)] gap-3">
                   <div className="relative flex justify-center">
-                    <ProfileHoverCard handle={profileHandle} name={displayName} avatar={profileAvatar} videosCount={48} groupsCount={3} subscribers="6.1 тис.">
+                    <ProfileHoverCard handle={profileHandle} name={displayName} avatar={profileAvatar} videosCount={48} subscribers="6.1 тис.">
                       <img
                         src={profileAvatar}
                         alt={displayName}
@@ -91,7 +90,7 @@ export default async function ProfileChannelActivityPage({ params }: PageProps) 
                     </div>
 
                     <p className="text-sm leading-6 text-nebori-text">
-                      <ProfileHoverCard handle={profileHandle} name={displayName} avatar={profileAvatar} videosCount={48} groupsCount={3} subscribers="6.1 тис.">
+                      <ProfileHoverCard handle={profileHandle} name={displayName} avatar={profileAvatar} videosCount={48} subscribers="6.1 тис.">
                         <Link href={`/profile/${handle}`} className="cursor-pointer font-semibold text-nebori-accent hover:underline">
                           {displayName}
                         </Link>
