@@ -1,8 +1,7 @@
 from .base_settings import *
 
 INSTALLED_APPS = COMMON_INSTALLED_APPS + [
-    'auth.apps.RegistrationConfig',
-    'user.apps.UserProfileConfig',
+    'notifications.apps.NotificationsConfig',
 ]
 
 ROOT_URLCONF = 'core.urls'

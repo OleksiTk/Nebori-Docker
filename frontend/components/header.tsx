@@ -5,12 +5,27 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import logo from "../logo.png";
+import { useAuth } from "@/components/auth-provider";
 
 const navItems = [
   { href: "/", label: "Головна" },
   { href: "/activity", label: "Активність" },
+  { href: "/shop", label: "Магазин" },
   { href: "/register", label: "Реєстрація" },
 ];
+
+const NOTIFICATIONS_API_URL = (
+  process.env.NEXT_PUBLIC_NOTIFICATIONS_API_URL ?? "http://localhost:8004"
+).replace(/\/$/, "");
+
+type Notification = {
+  id: number;
+  message: string;
+  created_at: string;
+  is_read: boolean;
+};
+
+
 
 const notifications = [
   {
@@ -31,10 +46,25 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isAuthenticated, user, logout } = useAuth();
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
+  const [dbNotifications, setDbNotifications] = useState<Notification[]>([]);
   const avatarMenuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (isAuthenticated && user?.id) {
+      fetch(`${NOTIFICATIONS_API_URL}/api/notifications/?user_id=${user.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (Array.isArray(data)) {
+            setDbNotifications(data);
+          }
+        })
+        .catch((err) => console.error("Failed to fetch notifications:", err));
+    }
+  }, [isAuthenticated, user?.id]);
 
   useEffect(() => {
     setAvatarMenuOpen(false);
@@ -75,6 +105,7 @@ export function Header() {
   };
 
   const profileActive =
+    pathname === "/profile" ||
     pathname.startsWith("/profile/") ||
     pathname.startsWith("/history") ||
     pathname.startsWith("/playlists");
@@ -140,7 +171,7 @@ export function Header() {
             </button>
             <div className="invisible absolute left-0 top-full z-50 mt-1 w-44 rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] p-1 opacity-0 transition duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
               <Link
-                href="/profile/nebori_user"
+                href="/profile"
                 className="block rounded-[3px] px-3 py-2 text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text"
               >
                 Мій профіль
@@ -222,26 +253,33 @@ export function Header() {
                 />
               </svg>
               <span className="absolute right-1.5 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-nebori-accent px-1 text-[10px] font-semibold text-black">
-                3
+                {dbNotifications.filter((n) => !n.is_read).length}
               </span>
             </button>
             <div className="invisible absolute right-0 top-full z-50 mt-1 w-[320px] overflow-hidden rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] opacity-0 transition duration-150 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
               <div className="border-b border-[rgba(255,255,255,0.08)] px-3 py-2 text-sm font-semibold text-nebori-text">
                 Сповіщення
               </div>
-              <div className="divide-y divide-[rgba(255,255,255,0.08)]">
-                {notifications.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    className="block px-3 py-2 hover:bg-[rgba(255,255,255,0.04)]"
-                  >
-                    <p className="line-clamp-2 text-[13px] leading-5 text-[#dde4f3]">
-                      {item.text}
-                    </p>
-                    <p className="text-[11px] text-nebori-muted">{item.time}</p>
-                  </Link>
-                ))}
+              <div className="divide-y divide-[rgba(255,255,255,0.08)] max-h-[400px] overflow-y-auto">
+                {dbNotifications.length > 0 ? (
+                  dbNotifications.map((item) => (
+                    <div
+                      key={item.id}
+                      className="block px-3 py-2 hover:bg-[rgba(255,255,255,0.04)]"
+                    >
+                      <p className="line-clamp-2 text-[13px] leading-5 text-[#dde4f3]">
+                        {item.message}
+                      </p>
+                      <p className="text-[11px] text-nebori-muted">
+                        {new Date(item.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="px-3 py-4 text-center text-xs text-nebori-muted">
+                    Немає нових сповіщень
+                  </div>
+                )}
               </div>
               <Link
                 href="/activity"
@@ -255,27 +293,41 @@ export function Header() {
           <div ref={avatarMenuRef} className="group relative">
             <button
               type="button"
-              onClick={() => setAvatarMenuOpen((v) => !v)}
+              onClick={() => {
+                if (!isAuthenticated) {
+                  router.push("/register");
+                  return;
+                }
+                setAvatarMenuOpen((v) => !v);
+              }}
               className="flex h-9 w-9 items-center justify-center border border-[rgba(255,255,255,0.12)] bg-nebori-panel p-0.5"
               aria-label="Меню профілю"
               aria-expanded={avatarMenuOpen}
             >
               <img
                 src="https://i.pravatar.cc/40?img=2"
-                alt="@nebori_user"
+                alt={`@${user?.username ?? "guest"}`}
                 className="h-7 w-7 shrink-0 rounded-none border border-[rgba(255,255,255,0.16)] object-cover"
               />
             </button>
             <div
-              className={`absolute right-0 top-full z-50 mt-1 w-52 rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] p-1 transition duration-150 md:group-hover:visible md:group-hover:opacity-100 md:group-focus-within:visible md:group-focus-within:opacity-100 ${
-                avatarMenuOpen ? "visible opacity-100" : "invisible opacity-0"
+              className={`absolute right-0 top-full z-50 mt-1 w-52 rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] p-1 transition duration-150 ${
+                isAuthenticated
+                  ? `md:group-hover:visible md:group-hover:opacity-100 md:group-focus-within:visible md:group-focus-within:opacity-100 ${
+                      avatarMenuOpen
+                        ? "visible opacity-100"
+                        : "invisible opacity-0"
+                    }`
+                  : "pointer-events-none invisible opacity-0"
               }`}
             >
               <div className="mb-1 rounded-[3px] border border-[rgba(255,255,255,0.08)] px-3 py-2">
                 <p className="text-sm font-semibold text-nebori-text">
-                  Nebori User
+                  {user?.username ?? "Nebori User"}
                 </p>
-                <p className="text-xs text-nebori-muted">@nebori_user</p>
+                <p className="text-xs text-nebori-muted">
+                  @{user?.username ?? "nebori_user"}
+                </p>
               </div>
               <Link
                 href="/studio?upload=1"
@@ -299,7 +351,7 @@ export function Header() {
                 Налаштування
               </Link>
               <Link
-                href="/profile/nebori_user"
+                href="/profile"
                 onClick={() => setAvatarMenuOpen(false)}
                 className="block w-full rounded-[3px] px-3 py-2 text-left text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text"
               >
@@ -307,6 +359,10 @@ export function Header() {
               </Link>
               <button
                 type="button"
+                onClick={() => {
+                  logout();
+                  setAvatarMenuOpen(false);
+                }}
                 className="block w-full rounded-[3px] px-3 py-2 text-left text-sm text-[#f3b3b3] hover:bg-[rgba(255,255,255,0.06)] hover:text-[#ffd4d4]"
               >
                 Вийти
@@ -357,7 +413,7 @@ export function Header() {
             {mobileProfileOpen ? (
               <div className="absolute right-0 top-full z-50 mt-1 w-44 max-w-[92vw] rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] p-1">
                 <Link
-                  href="/profile/nebori_user"
+                  href="/profile"
                   onClick={() => setMobileProfileOpen(false)}
                   className="block rounded-[3px] px-3 py-2 text-sm text-nebori-muted hover:bg-[rgba(255,255,255,0.06)] hover:text-nebori-text"
                 >

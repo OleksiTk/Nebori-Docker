@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/components/auth-provider";
 
 type RegisterFormState = {
   username: string;
@@ -15,7 +17,7 @@ type RegisterErrors = Partial<Record<keyof RegisterFormState, string>> & {
 };
 
 const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000"
+  process.env.NEXT_PUBLIC_AUTH_API_URL ?? "http://localhost:8001"
 ).replace(/\/$/, "");
 
 const initialFormState: RegisterFormState = {
@@ -26,6 +28,8 @@ const initialFormState: RegisterFormState = {
 };
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const { login } = useAuth();
   const [formState, setFormState] = useState(initialFormState);
   const [errors, setErrors] = useState<RegisterErrors>({});
   const [message, setMessage] = useState("");
@@ -42,7 +46,7 @@ export default function RegisterPage() {
     setMessage("");
 
     try {
-      const response = await fetch(`${apiBaseUrl}/api/register/`, {
+      const response = await fetch(`${apiBaseUrl}/api/auth/register/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,6 +58,12 @@ export default function RegisterPage() {
         message?: string;
         detail?: string;
         errors?: RegisterErrors;
+        token?: string;
+        user?: {
+          id: number;
+          username: string;
+          email: string;
+        };
       };
 
       if (!response.ok) {
@@ -66,7 +76,11 @@ export default function RegisterPage() {
       }
 
       setMessage(payload.message ?? "Користувача створено успішно.");
+      if (payload.token && payload.user) {
+        login(payload.token, payload.user);
+      }
       setFormState(initialFormState);
+      router.push("/profile");
     } catch {
       setErrors({ detail: "Не вдалося підключитися до сервера реєстрації." });
     } finally {
@@ -99,7 +113,7 @@ export default function RegisterPage() {
             <div className="panel rounded-[18px] p-4">
               <p className="text-sm text-nebori-muted">API</p>
               <p className="mt-1 text-lg font-semibold text-nebori-text">
-                /api/register/
+                /api/auth/register/
               </p>
             </div>
             <div className="panel rounded-[18px] p-4">
