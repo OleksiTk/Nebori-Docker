@@ -49,7 +49,9 @@ export function VideoCard({ item, index, rank }: VideoCardProps) {
             {item.duration}
           </span>
           {typeof rank === "number" && (
-            <span className={`absolute bottom-1.5 left-1.5 rounded-[3px] border px-1.5 py-0.5 text-[11px] font-bold ${rankBadgeClasses(rank)}`}>
+            <span
+              className={`absolute bottom-1.5 left-1.5 rounded-[3px] border px-1.5 py-0.5 text-[11px] font-bold ${rankBadgeClasses(rank)}`}
+            >
               #{rank}
             </span>
           )}
@@ -57,7 +59,10 @@ export function VideoCard({ item, index, rank }: VideoCardProps) {
       </Link>
 
       <div className="space-y-1 px-0.5 pb-0.5 pt-1.5">
-        <Link href={`/video/${item.id}`} className="line-clamp-2 text-[15px] font-semibold leading-5 text-[#e6e9f3]">
+        <Link
+          href={`/video/${item.id}`}
+          className="line-clamp-2 text-[15px] font-semibold leading-5 text-[#e6e9f3]"
+        >
           {item.title}
         </Link>
 
@@ -66,7 +71,6 @@ export function VideoCard({ item, index, rank }: VideoCardProps) {
           name={item.author}
           avatar={profileAvatar}
           videosCount={23}
-          groupsCount={3}
           subscribers={`12.4 ${"\u0442\u0438\u0441."}`}
           className="block"
         >
@@ -78,13 +82,19 @@ export function VideoCard({ item, index, rank }: VideoCardProps) {
               loading="lazy"
             />
             <div className="min-w-0">
-              <Link href={`/profile/${profileHandle}`} className="block truncate text-xs font-semibold text-[#d6dcec] hover:text-nebori-accent">
+              <Link
+                href={`/profile/${profileHandle}`}
+                className="block truncate text-xs font-semibold text-[#d6dcec] hover:text-nebori-accent"
+              >
                 {item.author}
               </Link>
               <p className="truncate text-[11px] leading-4 text-nebori-muted">
-                {item.views} {"\u043f\u0435\u0440\u0435\u0433\u043b\u044f\u0434\u0456\u0432"}
+                {item.views}{" "}
+                {"\u043f\u0435\u0440\u0435\u0433\u043b\u044f\u0434\u0456\u0432"}
               </p>
-              <p className="truncate text-[11px] leading-4 text-nebori-muted">{item.date}</p>
+              <p className="truncate text-[11px] leading-4 text-nebori-muted">
+                {item.date}
+              </p>
             </div>
           </div>
         </ProfileHoverCard>

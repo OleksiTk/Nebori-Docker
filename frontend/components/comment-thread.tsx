@@ -49,14 +49,23 @@ type CommentThreadProps = {
   className?: string;
 };
 
-export function CommentThread({ comments, className = "" }: CommentThreadProps) {
+export function CommentThread({
+  comments,
+  className = "",
+}: CommentThreadProps) {
   return (
     <div className={className}>
-      <h2 className="mb-3 border-l-2 border-nebori-accent pl-3 text-xl font-bold">Коментарі</h2>
+      <h2 className="mb-3 border-l-2 border-nebori-accent pl-3 text-xl font-bold">
+        Коментарі
+      </h2>
       <div className="rounded-[6px] border border-[rgba(255,255,255,0.08)] bg-[#0f131b]">
         <div className="border-b border-[rgba(255,255,255,0.08)] p-3">
           <div className="flex items-start gap-2">
-            <img src="https://i.pravatar.cc/80?img=2" alt="Ви" className="h-9 w-9 flex-none rounded-[2px] border border-[rgba(255,255,255,0.2)] object-cover" />
+            <img
+              src="https://i.pravatar.cc/80?img=2"
+              alt="Ви"
+              className="h-9 w-9 flex-none rounded-[2px] border border-[rgba(255,255,255,0.2)] object-cover"
+            />
             <div className="min-w-0 flex-1">
               <input
                 type="text"
@@ -64,7 +73,9 @@ export function CommentThread({ comments, className = "" }: CommentThreadProps) 
                 className="w-full rounded-[2px] border border-[rgba(255,255,255,0.12)] bg-[#0b0f16] px-3 py-2 text-sm text-nebori-text outline-none"
               />
               <div className="mt-2 flex justify-end gap-2">
-                <button className="btn-primary rounded-[2px] px-3 py-1 text-xs">Опублікувати</button>
+                <button className="btn-primary rounded-[2px] px-3 py-1 text-xs">
+                  Опублікувати
+                </button>
               </div>
             </div>
           </div>
@@ -79,10 +90,13 @@ export function CommentThread({ comments, className = "" }: CommentThreadProps) 
                   name={comment.author}
                   avatar={comment.avatar}
                   videosCount={14}
-                  groupsCount={2}
                   subscribers="4.2 тис."
                 >
-                  <img src={comment.avatar} alt={comment.author} className="h-9 w-9 flex-none rounded-[2px] border border-[rgba(255,255,255,0.2)] object-cover" />
+                  <img
+                    src={comment.avatar}
+                    alt={comment.author}
+                    className="h-9 w-9 flex-none rounded-[2px] border border-[rgba(255,255,255,0.2)] object-cover"
+                  />
                 </ProfileHoverCard>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline gap-2">
@@ -91,16 +105,22 @@ export function CommentThread({ comments, className = "" }: CommentThreadProps) 
                       name={comment.author}
                       avatar={comment.avatar}
                       videosCount={14}
-                      groupsCount={2}
                       subscribers="4.2 тис."
                     >
-                      <Link href={`/profile/${comment.author.toLowerCase().replace(/\s+/g, "_")}`} className="cursor-pointer text-base font-semibold text-[#c6d4df] transition-colors hover:text-nebori-accent">
+                      <Link
+                        href={`/profile/${comment.author.toLowerCase().replace(/\s+/g, "_")}`}
+                        className="cursor-pointer text-base font-semibold text-[#c6d4df] transition-colors hover:text-nebori-accent"
+                      >
                         {comment.author}
                       </Link>
                     </ProfileHoverCard>
-                    <span className="text-xs text-nebori-muted">{comment.time}</span>
+                    <span className="text-xs text-nebori-muted">
+                      {comment.time}
+                    </span>
                   </div>
-                  <p className="mt-1 text-sm leading-6 text-[#d6dde9]">{comment.text}</p>
+                  <p className="mt-1 text-sm leading-6 text-[#d6dde9]">
+                    {comment.text}
+                  </p>
                   <div className="mt-2 flex flex-wrap gap-3 text-xs text-[#8f98ab]">
                     <button className="flex items-center gap-1 hover:text-nebori-accent">
                       <LikeIcon />
@@ -110,38 +130,53 @@ export function CommentThread({ comments, className = "" }: CommentThreadProps) 
                       <DislikeIcon />
                       {comment.dislikes}
                     </button>
-                    <button className="hover:text-nebori-accent">Відповісти</button>
-                    <button className="hover:text-nebori-accent">Поскаржитися</button>
+                    <button className="hover:text-nebori-accent">
+                      Відповісти
+                    </button>
+                    <button className="hover:text-nebori-accent">
+                      Поскаржитися
+                    </button>
                   </div>
 
                   <div className="mt-3 space-y-2 border-l border-[rgba(255,255,255,0.1)] pl-3">
                     {comment.replies.map((reply) => (
                       <div key={reply.id} className="flex items-start gap-2">
                         <ProfileHoverCard
-                          handle={reply.author.toLowerCase().replace(/\s+/g, "_")}
+                          handle={reply.author
+                            .toLowerCase()
+                            .replace(/\s+/g, "_")}
                           name={reply.author}
                           avatar={reply.avatar}
                           videosCount={8}
-                          groupsCount={1}
                           subscribers="1.1 тис."
                         >
-                          <img src={reply.avatar} alt={reply.author} className="h-7 w-7 flex-none rounded-[2px] border border-[rgba(255,255,255,0.2)] object-cover" />
+                          <img
+                            src={reply.avatar}
+                            alt={reply.author}
+                            className="h-7 w-7 flex-none rounded-[2px] border border-[rgba(255,255,255,0.2)] object-cover"
+                          />
                         </ProfileHoverCard>
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-baseline gap-2">
                             <ProfileHoverCard
-                              handle={reply.author.toLowerCase().replace(/\s+/g, "_")}
+                              handle={reply.author
+                                .toLowerCase()
+                                .replace(/\s+/g, "_")}
                               name={reply.author}
                               avatar={reply.avatar}
                               videosCount={8}
-                              groupsCount={1}
                               subscribers="1.1 тис."
                             >
-                              <Link href={`/profile/${reply.author.toLowerCase().replace(/\s+/g, "_")}`} className="cursor-pointer text-sm font-semibold text-[#c6d4df] transition-colors hover:text-nebori-accent">
+                              <Link
+                                href={`/profile/${reply.author.toLowerCase().replace(/\s+/g, "_")}`}
+                                className="cursor-pointer text-sm font-semibold text-[#c6d4df] transition-colors hover:text-nebori-accent"
+                              >
                                 {reply.author}
                               </Link>
                             </ProfileHoverCard>
-                            <span className="text-xs text-nebori-muted">{reply.time}</span>
+                            <span className="text-xs text-nebori-muted">
+                              {reply.time}
+                            </span>
                           </div>
                           <p className="text-sm text-[#cfd7e6]">{reply.text}</p>
                           <div className="mt-1 flex gap-3 text-xs text-[#8f98ab]">
@@ -153,7 +188,9 @@ export function CommentThread({ comments, className = "" }: CommentThreadProps) 
                               <DislikeIcon />
                               {reply.dislikes}
                             </button>
-                            <button className="hover:text-nebori-accent">Відповісти</button>
+                            <button className="hover:text-nebori-accent">
+                              Відповісти
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -167,12 +204,20 @@ export function CommentThread({ comments, className = "" }: CommentThreadProps) 
 
         <div className="flex items-center justify-end gap-1 border-t border-[rgba(255,255,255,0.08)] bg-[#0c1017] px-3 py-2 text-sm">
           <button className="btn-ghost rounded-[2px] px-2 py-0.5">{`<`}</button>
-          <button className="text-nebori-muted hover:text-nebori-text">1</button>
+          <button className="text-nebori-muted hover:text-nebori-text">
+            1
+          </button>
           <button className="font-semibold text-nebori-accent">2</button>
-          <button className="text-nebori-muted hover:text-nebori-text">3</button>
-          <button className="text-nebori-muted hover:text-nebori-text">4</button>
+          <button className="text-nebori-muted hover:text-nebori-text">
+            3
+          </button>
+          <button className="text-nebori-muted hover:text-nebori-text">
+            4
+          </button>
           <span className="px-1 text-nebori-muted">...</span>
-          <button className="text-nebori-muted hover:text-nebori-text">14</button>
+          <button className="text-nebori-muted hover:text-nebori-text">
+            14
+          </button>
           <button className="btn-ghost rounded-[2px] px-2 py-0.5">{`>`}</button>
         </div>
       </div>

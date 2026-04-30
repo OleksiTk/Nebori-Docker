@@ -111,14 +111,21 @@ export default async function VideoPage({ params }: PageProps) {
   const { id } = await params;
   const current = videos.find((v) => v.id === id) ?? videos[0];
   const recommended = videos.filter((v) => v.id !== current.id).slice(0, 12);
-  const demoVideoSrc = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+  const demoVideoSrc =
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
   const demoPoster = `https://picsum.photos/seed/player-${current.id}/1280/720`;
 
   return (
     <div className="grid grid-cols-1 gap-7 lg:grid-cols-[minmax(0,7fr)_minmax(320px,3fr)]">
       <section className="min-w-0">
-        <CustomVideoPlayer src={demoVideoSrc} poster={demoPoster} initialDuration={current.duration} />
-        <h1 className="mt-4 text-[2rem] font-bold leading-tight">{current.title}</h1>
+        <CustomVideoPlayer
+          src={demoVideoSrc}
+          poster={demoPoster}
+          initialDuration={current.duration}
+        />
+        <h1 className="mt-4 text-[2rem] font-bold leading-tight">
+          {current.title}
+        </h1>
 
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[6px] border border-[rgba(255,255,255,0.08)] bg-[#15151F] p-3">
           <div className="flex items-center gap-3">
@@ -127,7 +134,6 @@ export default async function VideoPage({ params }: PageProps) {
               name={current.author}
               avatar={`https://picsum.photos/seed/author-${encodeURIComponent(current.author)}/80/80`}
               videosCount={29}
-              groupsCount={4}
               subscribers="12.4 тис."
             >
               <img
@@ -142,16 +148,20 @@ export default async function VideoPage({ params }: PageProps) {
                 name={current.author}
                 avatar={`https://picsum.photos/seed/author-${encodeURIComponent(current.author)}/80/80`}
                 videosCount={29}
-                groupsCount={4}
                 subscribers="12.4 тис."
               >
-                <Link href={`/profile/${current.author.toLowerCase()}`} className="text-base font-semibold text-nebori-accent hover:underline">
+                <Link
+                  href={`/profile/${current.author.toLowerCase()}`}
+                  className="text-base font-semibold text-nebori-accent hover:underline"
+                >
                   {current.author}
                 </Link>
               </ProfileHoverCard>
               <p className="text-xs text-nebori-muted">12.4 тис. підписників</p>
             </div>
-            <button className="btn-primary ml-2 rounded-[6px] px-4 py-2 text-sm font-semibold">Підписатися</button>
+            <button className="btn-primary ml-2 rounded-[6px] px-4 py-2 text-sm font-semibold">
+              Підписатися
+            </button>
           </div>
           <div className="flex flex-wrap gap-2">
             <button className="btn-ghost flex items-center gap-1.5 rounded-[6px] px-3 py-2 text-sm">
@@ -174,7 +184,10 @@ export default async function VideoPage({ params }: PageProps) {
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-[rgba(255,255,255,0.08)] pb-4 text-sm">
-          <Link href={`/profile/${current.author.toLowerCase()}`} className="font-semibold text-nebori-accent hover:underline">
+          <Link
+            href={`/profile/${current.author.toLowerCase()}`}
+            className="font-semibold text-nebori-accent hover:underline"
+          >
             {current.author}
           </Link>
           <span className="text-nebori-muted">{current.views} переглядів</span>
@@ -206,7 +219,10 @@ export default async function VideoPage({ params }: PageProps) {
         </h3>
         <div className="space-y-2">
           {recommended.map((item, idx) => (
-            <div key={item.id} className="group flex gap-2 rounded-[4px] px-1 py-1.5 hover:bg-[rgba(255,255,255,0.04)]">
+            <div
+              key={item.id}
+              className="group flex gap-2 rounded-[4px] px-1 py-1.5 hover:bg-[rgba(255,255,255,0.04)]"
+            >
               <Link
                 href={`/video/${item.id}`}
                 className="relative h-[94px] w-[168px] flex-none overflow-hidden rounded-[4px] border border-[rgba(255,255,255,0.1)] transition-all duration-150 group-hover:border-[rgba(245,197,24,0.35)]"
@@ -227,7 +243,10 @@ export default async function VideoPage({ params }: PageProps) {
                 </span>
               </Link>
               <div className="min-w-0 flex-1">
-                <Link href={`/video/${item.id}`} className="line-clamp-2 text-[15px] font-semibold leading-5 text-[#e6e9f3]">
+                <Link
+                  href={`/video/${item.id}`}
+                  className="line-clamp-2 text-[15px] font-semibold leading-5 text-[#e6e9f3]"
+                >
                   {item.title}
                 </Link>
                 <ProfileHoverCard
@@ -235,7 +254,6 @@ export default async function VideoPage({ params }: PageProps) {
                   name={item.author}
                   avatar={`https://picsum.photos/seed/avatar-${encodeURIComponent(item.author)}/64/64`}
                   videosCount={19}
-                  groupsCount={2}
                   subscribers={`5.8 ${"\u0442\u0438\u0441."}`}
                   className="mt-1 block"
                 >
@@ -254,14 +272,22 @@ export default async function VideoPage({ params }: PageProps) {
                         {item.author}
                       </Link>
                       <p className="truncate text-[11px] leading-4 text-nebori-muted">
-                        {item.views} {"\u043f\u0435\u0440\u0435\u0433\u043b\u044f\u0434\u0456\u0432"}
+                        {item.views}{" "}
+                        {
+                          "\u043f\u0435\u0440\u0435\u0433\u043b\u044f\u0434\u0456\u0432"
+                        }
                       </p>
-                      <p className="truncate text-[11px] leading-4 text-nebori-muted">{item.date}</p>
+                      <p className="truncate text-[11px] leading-4 text-nebori-muted">
+                        {item.date}
+                      </p>
                     </div>
                   </div>
                 </ProfileHoverCard>
               </div>
-              <button type="button" className="self-start rounded-[4px] p-1 text-nebori-muted hover:bg-[rgba(255,255,255,0.08)] hover:text-nebori-text">
+              <button
+                type="button"
+                className="self-start rounded-[4px] p-1 text-nebori-muted hover:bg-[rgba(255,255,255,0.08)] hover:text-nebori-text"
+              >
                 <MoreIcon />
               </button>
             </div>
