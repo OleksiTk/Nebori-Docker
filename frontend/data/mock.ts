@@ -11,10 +11,10 @@ export type VideoItem = {
 export const videos: VideoItem[] = [
   { id: "v101", title: "Огляд патчу Expedition 2.1", author: "IronBand", views: "14 тис.", date: "2 дні тому", duration: "18:42", tags: ["news", "patch"] },
   { id: "v102", title: "Турнір загону: фінальна гра", author: "BorealFox", views: "9.3 тис.", date: "4 дні тому", duration: "27:10", tags: ["esports", "tactics"] },
-  { id: "v103", title: "Nebori Devlog #3: групи", author: "Nebori Team", views: "3.1 тис.", date: "6 днів тому", duration: "11:09", tags: ["devlog", "platform"] },
+  { id: "v103", title: "Nebori Devlog #3: нові функції", author: "Nebori Team", views: "3.1 тис.", date: "6 днів тому", duration: "11:09", tags: ["devlog", "platform"] },
   { id: "v104", title: "Гайд по швидкому фарму токенів", author: "TokenCrafter", views: "22 тис.", date: "1 тиждень тому", duration: "9:50", tags: ["guide", "tokens"] },
   { id: "v105", title: "Підбірка кращих кліпів спільноти", author: "Community Hub", views: "7.8 тис.", date: "1 тиждень тому", duration: "16:20", tags: ["community", "clips"] },
-  { id: "v106", title: "Топ-5 груп для новачків", author: "ScoutLine", views: "5.4 тис.", date: "8 днів тому", duration: "12:11", tags: ["groups", "newbies"] },
+  { id: "v106", title: "Топ-5 каналів для новачків", author: "ScoutLine", views: "5.4 тис.", date: "8 днів тому", duration: "12:11", tags: ["channels", "newbies"] },
   { id: "v107", title: "Снайперські позиції на карті Outpost", author: "DeltaNox", views: "31 тис.", date: "9 днів тому", duration: "14:39", tags: ["guide", "map"] },
   { id: "v108", title: "Розбір PvP-білду через підтримку", author: "KiteForm", views: "12 тис.", date: "10 днів тому", duration: "21:04", tags: ["build", "pvp"] },
   { id: "v109", title: "Щоденник клану: тиждень рейдів", author: "Raid Signals", views: "4.2 тис.", date: "11 днів тому", duration: "31:25", tags: ["clan", "raids"] },
@@ -25,78 +25,17 @@ export const videos: VideoItem[] = [
   { id: "v114", title: "Секретні ачивки, які легко пропустити", author: "BadgeHunter", views: "27 тис.", date: "16 днів тому", duration: "10:33", tags: ["achievements", "tips"] },
   { id: "v115", title: "UI-оновлення платформи: що змінилось", author: "Nebori Team", views: "5.9 тис.", date: "18 днів тому", duration: "7:29", tags: ["devlog", "ui"] },
   { id: "v116", title: "Командна тактика 3-2-1 на практиці", author: "Frontline Hub", views: "11 тис.", date: "19 днів тому", duration: "22:40", tags: ["tactics", "teamplay"] },
-  { id: "v117", title: "Тест косметики: рамки та бейджі", author: "SkinBench", views: "6.6 тис.", date: "20 днів тому", duration: "12:52", tags: ["cosmetics", "shop"] },
   { id: "v118", title: "Порівняння налаштувань графіки для FPS", author: "PerfScope", views: "39 тис.", date: "3 тижні тому", duration: "15:17", tags: ["settings", "fps"] },
   { id: "v119", title: "Початок сезону: офіційний трейлер", author: "Nebori Team", views: "121 тис.", date: "3 тижні тому", duration: "2:11", tags: ["trailer", "season"] },
   { id: "v120", title: "Реакція спільноти на новий патч", author: "VoiceChat", views: "17 тис.", date: "24 дні тому", duration: "18:02", tags: ["community", "patch"] }
 ];
 
-export const activity = [
+export const activities = [
   "Іван подивився «Огляд патчу Expedition 2.1»",
-  "Марія вступила в групу «Raid Signals»",
+  "Марія підписалася на автора Raid Signals",
   "Олег отримав ачівку «Перші 1000 переглядів»",
-  "Daria опублікувала нове відео в групі «Frontline Hub»",
+  "Daria опублікувала нове відео",
   "Raptor підписався на автора Nebori Team"
-];
-
-export const cosmetics = [
-  { id: "c1", name: "Рамка «Бурштин»", category: "Рамки аватару", price: 120 },
-  { id: "c2", name: "Фон «Нічна станція»", category: "Фони профілю", price: 210 },
-  { id: "c3", name: "Значок «Офіцер»", category: "Значки", price: 85 },
-  { id: "c4", name: "Рамка «Мідний контур»", category: "Рамки аватару", price: 140 },
-  { id: "c5", name: "Фон «Командний штаб»", category: "Фони профілю", price: 260 },
-  { id: "c6", name: "Значок «Тактик»", category: "Значки", price: 100 }
-];
-
-export const groupActivityPosts = [
-  {
-    id: "g1",
-    group: "Frontline Hub",
-    author: "Raptor",
-    time: "сьогодні, 13:40",
-    title: "Збір команди на вечірній рейд",
-    body: "Потрібні 2 саппорти та 1 снайпер. Старт о 21:30, канал вже відкрито."
-  },
-  {
-    id: "g2",
-    group: "Raid Signals",
-    author: "Mira",
-    time: "сьогодні, 11:05",
-    title: "Оновлено ролі для новачків",
-    body: "Додали короткий гайд по ролях у закріплений пост, перевірте перед вступом у матчі."
-  },
-  {
-    id: "g3",
-    group: "Market Watch",
-    author: "TokenCrafter",
-    time: "вчора, 23:18",
-    title: "Баланс токенів після патчу",
-    body: "Оновив таблицю прибутковості активностей і додав нові значення для щоденних завдань."
-  },
-  {
-    id: "g4",
-    group: "Lore Keepers",
-    author: "Aria",
-    time: "вчора, 20:02",
-    title: "Теорія по лору сезону 12",
-    body: "Є нові підтвердження, що події трейлера пов'язані з архівом Atlas-9. Обговорюємо в треді."
-  },
-  {
-    id: "g5",
-    group: "Frontline Hub",
-    author: "ScoutLine",
-    time: "2 дні тому, 16:20",
-    title: "Розклад тренувань на тиждень",
-    body: "Пн/Ср/Пт — тактика, Вт/Чт — командна синергія. Реєстрація через форму в описі групи."
-  },
-  {
-    id: "g6",
-    group: "Raid Signals",
-    author: "BorealFox",
-    time: "2 дні тому, 10:47",
-    title: "Результати внутрішнього турніру",
-    body: "Перше місце — Squad Echo. Повна статистика матчів уже доступна в прикріпленому файлі."
-  }
 ];
 
 export type ThreadReply = {

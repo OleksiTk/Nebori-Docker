@@ -16,8 +16,7 @@ type StudioSection =
   | "content"
   | "analytics"
   | "comments"
-  | "channel_settings"
-  | "group_create";
+  | "channel_settings";
 type AnalyticsPeriod = "7d" | "28d" | "90d";
 
 type StudioVideoRow = {
@@ -47,7 +46,6 @@ const sidebarItems: Array<{ id: StudioSection; label: string }> = [
   { id: "analytics", label: "Аналітика" },
   { id: "comments", label: "Коментарі" },
   { id: "channel_settings", label: "Налаштування каналу" },
-  { id: "group_create", label: "Створення групи" },
 ];
 
 const trendByPeriod: Record<AnalyticsPeriod, number[]> = {
@@ -62,27 +60,6 @@ const trafficSources = [
   { source: "Підписки", share: 15 },
   { source: "Зовнішні сайти", share: 10 },
 ];
-
-const groupCategories = [
-  "Тактика",
-  "Команди",
-  "Рейди",
-  "Навчання",
-  "LFG",
-  "Економіка",
-  "Лор",
-  "Автори",
-];
-const groupVisibilityOptions = [
-  "Публічна",
-  "За запрошенням",
-  "Приватна",
-] as const;
-const groupJoinModes = [
-  "Відкрита",
-  "Після заявки",
-  "Ручне підтвердження",
-] as const;
 
 function slugifyGroup(value: string): string {
   return value
@@ -193,50 +170,12 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
   const [uploadPreviewName, setUploadPreviewName] = useState("");
   const [uploadPreviewUrl, setUploadPreviewUrl] = useState("");
   const [uploadParamHandled, setUploadParamHandled] = useState(false);
-  const [createGroupParamHandled, setCreateGroupParamHandled] = useState(false);
   const [channelAvatarUrl, setChannelAvatarUrl] = useState(
     "https://i.pravatar.cc/160?img=2",
   );
   const [channelBannerUrl, setChannelBannerUrl] = useState(
     "https://picsum.photos/seed/studio-channel-banner/1200/360",
   );
-  const [groupName, setGroupName] = useState("Frontline Hub");
-  const [groupSlug, setGroupSlug] = useState("frontline-hub");
-  const [groupShort, setGroupShort] = useState(
-    "Координація рейдів та командних сесій",
-  );
-  const [groupDescription, setGroupDescription] = useState(
-    "Група для організації вечірніх рейдів, спільних тренувань та розбору тактики.",
-  );
-  const [groupCategory, setGroupCategory] = useState(groupCategories[0]);
-  const [groupLanguage, setGroupLanguage] = useState("Українська");
-  const [groupVisibility, setGroupVisibility] =
-    useState<(typeof groupVisibilityOptions)[number]>("Публічна");
-  const [groupJoinMode, setGroupJoinMode] =
-    useState<(typeof groupJoinModes)[number]>("Відкрита");
-  const [groupTagsInput, setGroupTagsInput] = useState(
-    "Тактика, Команди, Рейди",
-  );
-  const [groupRules, setGroupRules] = useState<string[]>([
-    "Поважайте учасників і дотримуйтеся конструктивного тону.",
-    "Пости тільки по темі групи.",
-  ]);
-  const [groupDiscord, setGroupDiscord] = useState(
-    "https://discord.gg/nebori-frontline",
-  );
-  const [groupForum, setGroupForum] = useState(
-    "https://forum.nebori.gg/frontline",
-  );
-  const [groupServer, setGroupServer] = useState(
-    "https://nebori.gg/groups/frontline-hub",
-  );
-  const [groupCoverUrl, setGroupCoverUrl] = useState(
-    "https://picsum.photos/seed/group-cover-frontline-hub/1600/520",
-  );
-  const [groupAvatarUrl, setGroupAvatarUrl] = useState(
-    "https://api.dicebear.com/9.x/thumbs/svg?seed=Frontline%20Hub",
-  );
-  const [groupNotice, setGroupNotice] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const uploadPreviewInputRef = useRef<HTMLInputElement | null>(null);
   const channelAvatarInputRef = useRef<HTMLInputElement | null>(null);
@@ -288,10 +227,6 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
   }));
   const chartLine = chartPoints.map((p) => `${p.x},${p.y}`).join(" ");
   const chartArea = `0,100 ${chartLine} 100,100`;
-  const groupTags = groupTagsInput
-    .split(",")
-    .map((item) => item.trim())
-    .filter(Boolean);
 
   const openEditor = (row: StudioVideoRow) => {
     setEditingVideoId(row.id);
@@ -314,11 +249,6 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
     setEditorDescription("");
     setEditorTags("");
     setEditorVisibility("Публічне");
-  };
-
-  const openGroupCreate = () => {
-    setSection("group_create");
-    setGroupNotice(null);
   };
 
   const handleUploadFile = (file?: File | null) => {
@@ -355,12 +285,7 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
       openUploadModal();
       setUploadParamHandled(true);
     }
-    const shouldOpenGroupCreate = searchParams.get("createGroup") === "1";
-    if (shouldOpenGroupCreate && !createGroupParamHandled) {
-      openGroupCreate();
-      setCreateGroupParamHandled(true);
-    }
-  }, [searchParams, uploadParamHandled, createGroupParamHandled]);
+  }, [searchParams, uploadParamHandled]);
 
   return (
     <section className="mx-auto w-full max-w-[1320px]">
@@ -410,13 +335,6 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
                   className="btn-ghost rounded-[4px] px-3 py-1.5 text-sm"
                 >
                   Налаштувати канал
-                </button>
-                <button
-                  type="button"
-                  onClick={openGroupCreate}
-                  className="btn-ghost rounded-[4px] px-3 py-1.5 text-sm"
-                >
-                  Створити групу
                 </button>
                 <button
                   type="button"
@@ -882,7 +800,6 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
                               name={item.author}
                               avatar={`https://i.pravatar.cc/72?u=${encodeURIComponent(item.author)}`}
                               videosCount={18}
-                              groupsCount={2}
                               subscribers="6.1 тис."
                             >
                               <img
@@ -916,7 +833,6 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
                                 name={item.author}
                                 avatar={`https://i.pravatar.cc/72?u=${encodeURIComponent(item.author)}`}
                                 videosCount={18}
-                                groupsCount={2}
                                 subscribers="6.1 тис."
                               >
                                 <Link
@@ -1096,361 +1012,6 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
                 >
                   Скасувати
                 </button>
-              </div>
-            </article>
-          )}
-
-          {section === "group_create" && (
-            <article className="rounded-[6px] border border-[rgba(255,255,255,0.1)] bg-nebori-panel p-3">
-              <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
-                <div>
-                  <h2 className="text-lg font-semibold text-[#e6e9f3]">
-                    Створення групи
-                  </h2>
-                  <p className="mt-0.5 text-sm text-nebori-muted">
-                    Розширена форма: назва, позиціювання, правила, теги та
-                    зовнішні посилання
-                  </p>
-                </div>
-              </div>
-
-              {groupNotice ? (
-                <div className="mb-3 rounded-[4px] border border-[rgba(120,213,154,0.35)] bg-[rgba(120,213,154,0.12)] px-3 py-2 text-sm text-[#d8f4e3]">
-                  {groupNotice}
-                </div>
-              ) : null}
-
-              <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.6fr)_minmax(260px,0.9fr)]">
-                <div className="space-y-3">
-                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">
-                        Назва групи
-                      </p>
-                      <input
-                        value={groupName}
-                        onChange={(event) => {
-                          const nextName = event.target.value;
-                          setGroupName(nextName);
-                          if (
-                            !groupSlug ||
-                            groupSlug === slugifyGroup(groupName)
-                          ) {
-                            setGroupSlug(slugifyGroup(nextName));
-                          }
-                        }}
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      />
-                    </label>
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">
-                        Slug (URL)
-                      </p>
-                      <input
-                        value={groupSlug}
-                        onChange={(event) =>
-                          setGroupSlug(slugifyGroup(event.target.value))
-                        }
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      />
-                    </label>
-                  </div>
-
-                  <label className="block">
-                    <p className="mb-1 text-xs text-nebori-muted">
-                      Короткий підзаголовок
-                    </p>
-                    <input
-                      value={groupShort}
-                      onChange={(event) => setGroupShort(event.target.value)}
-                      className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                    />
-                  </label>
-
-                  <label className="block">
-                    <p className="mb-1 text-xs text-nebori-muted">Опис групи</p>
-                    <textarea
-                      value={groupDescription}
-                      onChange={(event) =>
-                        setGroupDescription(event.target.value)
-                      }
-                      rows={4}
-                      className="w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 py-2 text-sm text-nebori-text outline-none"
-                    />
-                  </label>
-
-                  <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">
-                        Категорія
-                      </p>
-                      <select
-                        value={groupCategory}
-                        onChange={(event) =>
-                          setGroupCategory(event.target.value)
-                        }
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      >
-                        {groupCategories.map((category) => (
-                          <option key={category}>{category}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">Мова</p>
-                      <input
-                        value={groupLanguage}
-                        onChange={(event) =>
-                          setGroupLanguage(event.target.value)
-                        }
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      />
-                    </label>
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">
-                        Видимість
-                      </p>
-                      <select
-                        value={groupVisibility}
-                        onChange={(event) =>
-                          setGroupVisibility(
-                            event.target
-                              .value as (typeof groupVisibilityOptions)[number],
-                          )
-                        }
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      >
-                        {groupVisibilityOptions.map((option) => (
-                          <option key={option}>{option}</option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">Вступ</p>
-                      <select
-                        value={groupJoinMode}
-                        onChange={(event) =>
-                          setGroupJoinMode(
-                            event.target
-                              .value as (typeof groupJoinModes)[number],
-                          )
-                        }
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      >
-                        {groupJoinModes.map((option) => (
-                          <option key={option}>{option}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">
-                        Теги (через кому)
-                      </p>
-                      <input
-                        value={groupTagsInput}
-                        onChange={(event) =>
-                          setGroupTagsInput(event.target.value)
-                        }
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      />
-                    </label>
-                  </div>
-
-                  <div className="rounded-[4px] border border-[rgba(255,255,255,0.1)] p-2.5">
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold text-[#dbe3f2]">
-                        Правила групи
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setGroupRules((prev) => [...prev, ""])}
-                        className="rounded-[3px] border border-[rgba(255,255,255,0.14)] px-2 py-1 text-xs text-nebori-muted hover:text-nebori-accent"
-                      >
-                        Додати правило
-                      </button>
-                    </div>
-                    <div className="space-y-2">
-                      {groupRules.map((rule, index) => (
-                        <div key={`rule-${index}`} className="flex gap-2">
-                          <input
-                            value={rule}
-                            onChange={(event) =>
-                              setGroupRules((prev) =>
-                                prev.map((item, itemIndex) =>
-                                  itemIndex === index
-                                    ? event.target.value
-                                    : item,
-                                ),
-                              )
-                            }
-                            className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                          />
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setGroupRules((prev) =>
-                                prev.filter(
-                                  (_, itemIndex) => itemIndex !== index,
-                                ),
-                              )
-                            }
-                            className="rounded-[3px] border border-[rgba(255,255,255,0.14)] px-2 py-1 text-xs text-nebori-muted hover:text-[#f3b3b3]"
-                          >
-                            Видалити
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-2 md:grid-cols-3">
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">Discord</p>
-                      <input
-                        value={groupDiscord}
-                        onChange={(event) =>
-                          setGroupDiscord(event.target.value)
-                        }
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      />
-                    </label>
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">Форум</p>
-                      <input
-                        value={groupForum}
-                        onChange={(event) => setGroupForum(event.target.value)}
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      />
-                    </label>
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">URL</p>
-                      <input
-                        value={groupServer}
-                        onChange={(event) => setGroupServer(event.target.value)}
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      />
-                    </label>
-                  </div>
-
-                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">
-                        Обкладинка (URL)
-                      </p>
-                      <input
-                        value={groupCoverUrl}
-                        onChange={(event) =>
-                          setGroupCoverUrl(event.target.value)
-                        }
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      />
-                    </label>
-                    <label className="block">
-                      <p className="mb-1 text-xs text-nebori-muted">
-                        Аватар (URL)
-                      </p>
-                      <input
-                        value={groupAvatarUrl}
-                        onChange={(event) =>
-                          setGroupAvatarUrl(event.target.value)
-                        }
-                        className="h-9 w-full rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#161922] px-3 text-sm text-nebori-text outline-none"
-                      />
-                    </label>
-                  </div>
-
-                  <div className="flex flex-wrap justify-end gap-2 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setGroupName("");
-                        setGroupSlug("");
-                        setGroupShort("");
-                        setGroupDescription("");
-                        setGroupTagsInput("");
-                        setGroupRules([""]);
-                        setGroupNotice(null);
-                      }}
-                      className="btn-ghost rounded-[4px] px-3 py-1.5 text-sm"
-                    >
-                      Очистити
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const preparedName = groupName.trim();
-                        const preparedSlug = groupSlug.trim();
-                        if (!preparedName || !preparedSlug) {
-                          setGroupNotice("Вкажіть назву та slug групи.");
-                          return;
-                        }
-                        setGroupNotice(
-                          `Групу «${preparedName}» створено в демо-режимі. URL: /groups/${preparedSlug}`,
-                        );
-                      }}
-                      className="btn-primary rounded-[4px] px-3 py-1.5 text-sm"
-                    >
-                      Створити групу
-                    </button>
-                  </div>
-                </div>
-
-                <aside className="rounded-[6px] border border-[rgba(255,255,255,0.1)] bg-[#101622] p-2.5">
-                  <p className="mb-2 text-xs uppercase tracking-[0.06em] text-nebori-muted">
-                    Превʼю
-                  </p>
-                  <div className="overflow-hidden rounded-[4px] border border-[rgba(255,255,255,0.12)]">
-                    <div className="relative h-24 bg-black">
-                      <img
-                        src={groupCoverUrl}
-                        alt={groupName || "Group cover"}
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-b from-[rgba(9,12,18,0.22)] via-[rgba(9,12,18,0.32)] to-[rgba(9,12,18,0.72)]" />
-                    </div>
-                    <div className="p-2.5">
-                      <div className="flex items-end gap-2">
-                        <img
-                          src={groupAvatarUrl}
-                          alt={groupName || "Group avatar"}
-                          className="-mt-8 h-11 w-11 rounded-[4px] border border-[rgba(255,255,255,0.18)] bg-[#101621] object-cover"
-                          loading="lazy"
-                        />
-                        <div className="min-w-0 pb-0.5">
-                          <p className="truncate text-sm font-semibold text-[#e6e9f3]">
-                            {groupName || "Нова група"}
-                          </p>
-                          <p className="line-clamp-2 text-xs text-nebori-muted">
-                            {groupShort || "Короткий опис групи"}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="mt-2 text-xs leading-5 text-nebori-muted">
-                        {groupDescription || "Опис групи зʼявиться тут."}
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {groupTags.slice(0, 4).map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded-[3px] border border-[rgba(255,255,255,0.14)] px-1.5 py-0.5 text-[10px] text-nebori-muted"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="mt-2 space-y-1 text-[11px] text-nebori-muted">
-                        <p>Категорія: {groupCategory}</p>
-                        <p>Видимість: {groupVisibility}</p>
-                        <p>Вступ: {groupJoinMode}</p>
-                        <p>Мова: {groupLanguage}</p>
-                      </div>
-                    </div>
-                  </div>
-                </aside>
               </div>
             </article>
           )}
