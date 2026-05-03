@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
+import ProfileEditor from "@/components/profile-editor";
 
 type ProfileResponse = {
   message?: string;
@@ -17,7 +18,7 @@ type ProfileResponse = {
 };
 
 const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_USER_API_URL ?? "http://localhost:8002"
+  process.env.NEXT_PUBLIC_USER_API_URL ?? "http://localhost:8003"
 ).replace(/\/$/, "");
 
 export default function ProfilePlaceholderPage() {
@@ -41,7 +42,7 @@ export default function ProfilePlaceholderPage() {
       setError("");
 
       try {
-        const response = await fetch(`${apiBaseUrl}/api/user/profile/`, {
+        const response = await fetch(`${apiBaseUrl}/api/user/profile/me/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -104,6 +105,7 @@ export default function ProfilePlaceholderPage() {
       <h1 className="mt-2 text-3xl font-semibold text-nebori-text">
         Вітаємо, {user.username}
       </h1>
+      <ProfileEditor />
       <p className="mt-2 text-nebori-muted">
         {loading
           ? "Завантажуємо основну інформацію користувача..."

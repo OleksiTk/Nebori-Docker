@@ -17,7 +17,7 @@ type RegisterErrors = Partial<Record<keyof RegisterFormState, string>> & {
 };
 
 const apiBaseUrl = (
-  process.env.NEXT_PUBLIC_AUTH_API_URL ?? "http://localhost:8001"
+  process.env.NEXT_PUBLIC_AUTH_API_URL ?? "http://localhost:8002"
 ).replace(/\/$/, "");
 
 const initialFormState: RegisterFormState = {
@@ -58,6 +58,7 @@ export default function RegisterPage() {
         message?: string;
         detail?: string;
         errors?: RegisterErrors;
+        access?: string;
         token?: string;
         user?: {
           id: number;
@@ -76,8 +77,9 @@ export default function RegisterPage() {
       }
 
       setMessage(payload.message ?? "Користувача створено успішно.");
-      if (payload.token && payload.user) {
-        login(payload.token, payload.user);
+      const accessToken = payload.access || payload.token;
+      if (accessToken && payload.user) {
+        login(accessToken, payload.user);
       }
       setFormState(initialFormState);
       router.push("/profile");
