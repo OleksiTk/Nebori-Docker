@@ -9,7 +9,7 @@ type RegisterFormState = {
   username: string;
   email: string;
   password: string;
-  confirmPassword: string;
+  password_confirm: string;
 };
 
 type RegisterErrors = Partial<Record<keyof RegisterFormState, string>> & {
@@ -24,7 +24,7 @@ const initialFormState: RegisterFormState = {
   username: "",
   email: "",
   password: "",
-  confirmPassword: "",
+  password_confirm: "",
 };
 
 export default function RegisterPage() {
@@ -218,17 +218,17 @@ export default function RegisterPage() {
                   </span>
                   <input
                     type="password"
-                    value={formState.confirmPassword}
+                    value={formState.password_confirm}
                     onChange={(event) =>
-                      updateField("confirmPassword", event.target.value)
+                      updateField("password_confirm", event.target.value)
                     }
                     autoComplete="new-password"
                     className="w-full rounded-[6px] border border-[rgba(255,255,255,0.12)] bg-[#11141d] px-3 py-3 text-nebori-text outline-none transition focus:border-[#f5c518]"
                     placeholder="Repeat your password"
                   />
-                  {errors.confirmPassword ? (
+                  {errors.password_confirm ? (
                     <span className="block text-sm text-[#ffb4b4]">
-                      {errors.confirmPassword}
+                      {errors.password_confirm}
                     </span>
                   ) : null}
                 </label>
