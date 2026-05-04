@@ -10,7 +10,6 @@ import { useAuth } from "@/components/auth-provider";
 const navItems = [
   { href: "/", label: "Головна" },
   { href: "/activity", label: "Активність" },
-  { href: "/shop", label: "Магазин" },
   { href: "/register", label: "Реєстрація" },
 ];
 
@@ -18,14 +17,19 @@ const NOTIFICATIONS_API_URL = (
   process.env.NEXT_PUBLIC_NOTIFICATIONS_API_URL ?? "http://localhost:8004"
 ).replace(/\/$/, "");
 
+const USER_API_URL = (
+  process.env.NEXT_PUBLIC_USER_API_URL ?? "http://localhost:8003"
+).replace(/\/$/, "");
+
+const DEFAULT_AVATAR =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='0' fill='%23141a25'/%3E%3Ccircle cx='20' cy='16' r='7' fill='%23f5c518'/%3E%3Cpath d='M8 34c2.5-6 7-9 12-9s9.5 3 12 9' fill='%23f5c518'/%3E%3C/svg%3E";
+
 type Notification = {
   id: number;
   message: string;
   created_at: string;
   is_read: boolean;
 };
-
-
 
 const notifications = [
   {
@@ -46,7 +50,7 @@ export function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, token, updateUser, logout } = useAuth();
   const [avatarMenuOpen, setAvatarMenuOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [mobileProfileOpen, setMobileProfileOpen] = useState(false);
@@ -65,6 +69,35 @@ export function Header() {
         .catch((err) => console.error("Failed to fetch notifications:", err));
     }
   }, [isAuthenticated, user?.id]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !token || !user?.id) return;
+
+    let canceled = false;
+    const loadAvatar = async () => {
+      try {
+        const response = await fetch(`${USER_API_URL}/api/user/profile/me/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) return;
+
+        const profile = (await response.json()) as { avatar?: string };
+        if (!canceled && profile.avatar && profile.avatar !== user.avatar) {
+          updateUser({ avatar: profile.avatar });
+        }
+      } catch {
+        // Ignore avatar lookup failures; the auth state fallback still renders.
+      }
+    };
+
+    void loadAvatar();
+
+    return () => {
+      canceled = true;
+    };
+  }, [isAuthenticated, token, user?.id, user?.avatar, updateUser]);
 
   useEffect(() => {
     setAvatarMenuOpen(false);
@@ -119,7 +152,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-[rgba(255,255,255,0.08)] bg-[linear-gradient(90deg,#0f1117_0%,#121824_60%,#1b1913_100%)]">
-      <div className="mx-auto flex w-full max-w-[1720px] flex-wrap items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4 xl:px-6">
+      <div className="mx-auto flex flex-row w-full  items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4 xl:px-6 ">
         <Link href="/" className="flex items-center justify-center py-1">
           <Image
             src={logo}
@@ -129,7 +162,7 @@ export function Header() {
           />
         </Link>
 
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="hidden w-full gap-1 lg:flex items-center">
           {navItems.map((item) => (
             <Link
               key={item.href}
@@ -196,7 +229,7 @@ export function Header() {
               </Link>
             </div>
           </div>
-
+          <div className="w-full"></div>
           <div className="relative min-w-0 w-full sm:max-w-xl">
             <input
               type="text"
@@ -305,7 +338,7 @@ export function Header() {
               aria-expanded={avatarMenuOpen}
             >
               <img
-                src="https://i.pravatar.cc/40?img=2"
+                src={user?.avatar ?? DEFAULT_AVATAR}
                 alt={`@${user?.username ?? "guest"}`}
                 className="h-7 w-7 shrink-0 rounded-none border border-[rgba(255,255,255,0.16)] object-cover"
               />
@@ -410,6 +443,7 @@ export function Header() {
                 />
               </svg>
             </button>
+
             {mobileProfileOpen ? (
               <div className="absolute right-0 top-full z-50 mt-1 w-44 max-w-[92vw] rounded-[4px] border border-[rgba(255,255,255,0.16)] bg-[#141a25] p-1">
                 <Link

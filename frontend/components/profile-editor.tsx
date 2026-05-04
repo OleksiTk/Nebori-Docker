@@ -18,7 +18,7 @@ type Profile = {
 };
 
 export default function ProfileEditor() {
-  const { token, user } = useAuth();
+  const { token, user, updateUser } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(false);
   const [savingName, setSavingName] = useState(false);
@@ -54,6 +54,7 @@ export default function ProfileEditor() {
             id: user?.id,
             username: user?.username,
             email: user?.email,
+            avatar: user?.avatar,
           });
         }
       } finally {
@@ -116,6 +117,13 @@ export default function ProfileEditor() {
       if (refresh.ok) {
         const p = await refresh.json();
         setProfile(p);
+        updateUser({ avatar: p.avatar });
+      } else if (
+        payload &&
+        typeof payload === "object" &&
+        "avatar" in payload
+      ) {
+        updateUser({ avatar: (payload as { avatar?: string }).avatar });
       }
     } catch (err) {
       setStatus(err instanceof Error ? err.message : "Upload failed");
