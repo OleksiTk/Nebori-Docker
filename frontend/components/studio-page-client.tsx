@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, Suspense } from "react"; // 1. Додано Suspense
+import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { ProfileHoverCard } from "@/components/profile-hover-card";
+import { useAuth } from "@/components/auth-provider";
 import type { VideoItem } from "@/data/mock";
+import { uploadVideo } from "@/services/uploadService";
+import { createVideoMetadata } from "@/services/metadataService";
 
 type StudioPageClientProps = {
   videos: VideoItem[];
@@ -150,6 +153,7 @@ function buildComments(rows: StudioVideoRow[]): FeedComment[] {
 
 // 2. Змінено ім'я з StudioPageClient на StudioPageContent (це тепер внутрішній компонент)
 function StudioPageContent({ videos }: StudioPageClientProps) {
+  const { user } = useAuth();
   const searchParams = useSearchParams();
   const [section, setSection] = useState<StudioSection>("dashboard");
   const [tab, setTab] = useState<StudioTab>("all");
@@ -163,13 +167,15 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
   const [editorVisibility, setEditorVisibility] =
     useState<StudioVideoRow["visibility"]>("Публічне");
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
-  const [uploadStep, setUploadStep] = useState<"dropzone" | "basics">(
-    "dropzone",
-  );
+  const [uploadStep, setUploadStep] = useState<
+    "dropzone" | "basics" | "uploading"
+  >("dropzone");
   const [uploadedFileName, setUploadedFileName] = useState("");
   const [uploadPreviewName, setUploadPreviewName] = useState("");
   const [uploadPreviewUrl, setUploadPreviewUrl] = useState("");
   const [uploadParamHandled, setUploadParamHandled] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState<File | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [channelAvatarUrl, setChannelAvatarUrl] = useState(
     "https://i.pravatar.cc/160?img=2",
   );
@@ -253,6 +259,7 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
 
   const handleUploadFile = (file?: File | null) => {
     if (!file) return;
+    setUploadingFile(file);
     setUploadedFileName(file.name);
     setEditorTitle(file.name.replace(/\.[^/.]+$/, ""));
     setEditorDescription("Коротко опишіть відео для глядачів.");
@@ -261,6 +268,35 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
     setUploadStep("basics");
     setSection("content");
     setTab("draft");
+  };
+
+  const handleSubmitUpload = async () => {
+    if (!uploadingFile) return;
+    if (!user?.id) {
+      setUploadError("Користувач не авторизований");
+      return;
+    }
+
+    setUploadStep("uploading");
+    setUploadError(null);
+
+    try {
+      const videoId = crypto.randomUUID();
+
+      await createVideoMetadata(user.id, editorTitle, editorDescription);
+
+      await uploadVideo(videoId, user.id, editorTitle, uploadingFile);
+
+      setUploadModalOpen(false);
+      setUploadStep("dropzone");
+      setUploadingFile(null);
+    } catch (error) {
+      console.error("Upload failed:", error);
+      setUploadError(
+        error instanceof Error ? error.message : "Помилка завантаження",
+      );
+      setUploadStep("basics");
+    }
   };
 
   const handleUploadPreviewFile = (file?: File | null) => {
@@ -1073,8 +1109,23 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
                   </button>
                 </div>
               </div>
+            ) : uploadStep === "uploading" ? (
+              <div className="space-y-3 text-center py-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border-4 border-[rgba(245,201,52,0.45)] border-t-transparent animate-spin mx-auto mb-4"></div>
+                <p className="text-base font-semibold text-[#e6e9f3]">
+                  Завантаження відео...
+                </p>
+                <p className="text-sm text-nebori-muted">
+                  Будь ласка, зачекайте, це може зайняти кілька хвилин.
+                </p>
+              </div>
             ) : (
               <div className="space-y-3">
+                {uploadError && (
+                  <div className="rounded-[6px] border border-[rgba(255,100,100,0.3)] bg-[rgba(255,100,100,0.1)] px-3 py-2 text-sm text-[#ffb3b3]">
+                    Помилка: {uploadError}
+                  </div>
+                )}
                 <div className="rounded-[6px] border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.03)] px-3 py-2 text-sm text-nebori-muted">
                   Завантажено:{" "}
                   <span className="font-medium text-[#e4e9f5]">
@@ -1184,10 +1235,10 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setUploadModalOpen(false)}
+                    onClick={handleSubmitUpload}
                     className="btn-primary rounded-[4px] px-3 py-1.5 text-sm"
                   >
-                    Продовжити
+                    Завантажити
                   </button>
                 </div>
               </div>
