@@ -281,11 +281,9 @@ function StudioPageContent({ videos }: StudioPageClientProps) {
     setUploadError(null);
 
     try {
-      const videoId = crypto.randomUUID();
+      const res = await createVideoMetadata(editorTitle, editorDescription);
 
-      await createVideoMetadata(user.id, editorTitle, editorDescription);
-
-      await uploadVideo(videoId, user.id, editorTitle, uploadingFile);
+      await uploadVideo(res.id, user.id, editorTitle, uploadingFile);
 
       setUploadModalOpen(false);
       setUploadStep("dropzone");

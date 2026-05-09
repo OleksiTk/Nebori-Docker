@@ -1,12 +1,22 @@
-import { METADATA_API_URL } from "./api";
+import { METADATA_API_URL, METADATA_BASE } from "./api";
 
-export type VideoMetadata = {
+export type VideoStatus =
+  | "queued"
+  | "uploading"
+  | "transcoding"
+  | "published"
+  | "blocked"
+  | "deleted"
+  | "error"
+  | "canceled";
+
+export type VideoRead = {
   id: string;
-  user_id: string;
+  user_id: number;
   title: string;
-  description: string;
-  status: "pending" | "processed";
-  playlist_url: string | null;
+  description: string | null;
+  status: VideoStatus;
+  hls_urls: Record<string, string>;
   thumbnail_url: string | null;
   duration: number | null;
   views_count: number;
@@ -14,16 +24,15 @@ export type VideoMetadata = {
 };
 
 export async function createVideoMetadata(
-  userId: string | number,
   title: string,
-  description: string,
-): Promise<VideoMetadata> {
+  description?: string,
+): Promise<VideoRead> {
   const response = await fetch(`${METADATA_API_URL}/videos/`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ user_id: String(userId), title, description }),
+    body: JSON.stringify({ title, description }),
   });
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
@@ -33,10 +42,8 @@ export async function createVideoMetadata(
   return response.json();
 }
 
-export async function getVideoMetadata(
-  videoId: string,
-): Promise<VideoMetadata> {
-  const response = await fetch(`${METADATA_API_URL}/videos/${videoId}`);
+export async function getVideoMetadata(videoId: string): Promise<VideoRead> {
+  const response = await fetch(`${METADATA_BASE}/videos/${videoId}`);
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
     throw new Error(errorData?.detail || "Failed to get video metadata");
@@ -45,16 +52,15 @@ export async function getVideoMetadata(
 }
 
 export async function listVideos(
-  limit?: number,
-  offset?: number,
-): Promise<VideoMetadata[]> {
-  const params = new URLSearchParams();
-  if (limit) params.append("limit", limit.toString());
-  if (offset) params.append("offset", offset.toString());
+  limit: number = 20,
+  offset: number = 0,
+): Promise<VideoRead[]> {
+  const params = new URLSearchParams({
+    limit: limit.toString(),
+    offset: offset.toString(),
+  });
 
-  const response = await fetch(
-    `${METADATA_API_URL}/videos/?${params.toString()}`,
-  );
+  const response = await fetch(`${METADATA_BASE}/videos?${params.toString()}`);
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
     throw new Error(errorData?.detail || "Failed to list videos");
@@ -64,12 +70,11 @@ export async function listVideos(
 
 export async function updateVideoMetadata(
   videoId: string,
-  updates: Partial<{
-    title: string;
-    description: string;
-    status: "pending" | "processed";
-  }>,
-): Promise<VideoMetadata> {
+  updates: {
+    title?: string;
+    description?: string;
+  },
+): Promise<VideoRead> {
   const response = await fetch(`${METADATA_API_URL}/videos/${videoId}`, {
     method: "PATCH",
     headers: {

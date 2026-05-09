@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { VideoCard } from "@/components/video-card";
-import type { VideoItem } from "@/data/mock";
+import type { VideoRead } from "@/services/metadataService";
 
 type HomePageContentProps = {
-  videos: VideoItem[];
+  videos: VideoRead[];
 };
 
 const tabs = [

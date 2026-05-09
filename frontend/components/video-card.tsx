@@ -1,12 +1,40 @@
 import Link from "next/link";
-import type { VideoItem } from "@/data/mock";
+import type { VideoRead } from "@/services/metadataService";
 import { ProfileHoverCard } from "@/components/profile-hover-card";
+import { UPLOAD_API_URL } from "@/services/api";
 
 type VideoCardProps = {
-  item: VideoItem;
+  item: VideoRead;
   index: number;
   rank?: number;
 };
+
+function formatDuration(seconds: number | null) {
+  if (seconds === null) return "0:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+function formatViews(count: number) {
+  if (count >= 1000000) return `${(count / 1000000).toFixed(1)} млн`;
+  if (count >= 1000) return `${(count / 1000).toFixed(1)} тис.`;
+  return count.toString();
+}
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return "щойно";
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} хв тому`;
+  if (diffInSeconds < 86400)
+    return `${Math.floor(diffInSeconds / 3600)} год тому`;
+  if (diffInSeconds < 604800)
+    return `${Math.floor(diffInSeconds / 86400)} дн тому`;
+  return date.toLocaleDateString();
+}
 
 function rankBadgeClasses(rank: number) {
   if (rank === 1) {
@@ -24,15 +52,24 @@ function rankBadgeClasses(rank: number) {
 export function VideoCard({ item, index, rank }: VideoCardProps) {
   const isNew = index % 3 !== 1;
   const quality = index % 4 === 0 ? "720p" : "1080p";
-  const profileHandle = item.author.toLowerCase().replace(/\s+/g, "_");
-  const profileAvatar = `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(item.author)}`;
+  const authorName = `User ${item.user_id}`; // Placeholder since we don't have author name
+  const profileHandle = authorName.toLowerCase().replace(/\s+/g, "_");
+  const profileAvatar = `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(authorName)}`;
+
+  let thumbnailUrl = item.thumbnail_url;
+  if (thumbnailUrl && !thumbnailUrl.startsWith("http")) {
+    thumbnailUrl = `${UPLOAD_API_URL}/${thumbnailUrl.replace(/^\//, "")}`;
+  }
 
   return (
     <article className="group rounded-[4px] border border-transparent p-0.5 transition-all duration-150 hover:border-[rgba(245,197,24,0.28)] hover:bg-[rgba(255,255,255,0.04)]">
       <Link href={`/video/${item.id}`} className="block">
         <div className="relative aspect-video overflow-hidden rounded-[4px] border border-[rgba(255,255,255,0.12)]">
           <img
-            src={`https://picsum.photos/seed/nebori-${item.id}/640/360`}
+            src={
+              thumbnailUrl ||
+              `https://picsum.photos/seed/nebori-${item.id}/640/360`
+            }
             alt={item.title}
             className="h-full w-full object-cover transition duration-150 group-hover:scale-[1.03]"
             loading="lazy"
@@ -46,7 +83,7 @@ export function VideoCard({ item, index, rank }: VideoCardProps) {
             {quality}
           </span>
           <span className="absolute bottom-1.5 right-1.5 rounded-[3px] bg-black/80 px-1.5 py-0.5 text-[11px] font-semibold text-white">
-            {item.duration}
+            {formatDuration(item.duration)}
           </span>
           {typeof rank === "number" && (
             <span
@@ -63,12 +100,12 @@ export function VideoCard({ item, index, rank }: VideoCardProps) {
           href={`/video/${item.id}`}
           className="line-clamp-2 text-[15px] font-semibold leading-5 text-[#e6e9f3]"
         >
-          {item.title}
+          {item.description}
         </Link>
 
         <ProfileHoverCard
           handle={profileHandle}
-          name={item.author}
+          name={authorName}
           avatar={profileAvatar}
           videosCount={23}
           subscribers={`12.4 ${"\u0442\u0438\u0441."}`}
@@ -77,7 +114,7 @@ export function VideoCard({ item, index, rank }: VideoCardProps) {
           <div className="flex items-start gap-1.5">
             <img
               src={profileAvatar}
-              alt={item.author}
+              alt={authorName}
               className="mt-0.5 h-6 w-6 flex-none rounded-[2px] border border-[rgba(255,255,255,0.2)] object-cover"
               loading="lazy"
             />
@@ -86,14 +123,14 @@ export function VideoCard({ item, index, rank }: VideoCardProps) {
                 href={`/profile/${profileHandle}`}
                 className="block truncate text-xs font-semibold text-[#d6dcec] hover:text-nebori-accent"
               >
-                {item.author}
+                {authorName}
               </Link>
               <p className="truncate text-[11px] leading-4 text-nebori-muted">
-                {item.views}{" "}
+                {formatViews(item.views_count)}{" "}
                 {"\u043f\u0435\u0440\u0435\u0433\u043b\u044f\u0434\u0456\u0432"}
               </p>
               <p className="truncate text-[11px] leading-4 text-nebori-muted">
-                {item.date}
+                {formatDate(item.created_at)}
               </p>
             </div>
           </div>

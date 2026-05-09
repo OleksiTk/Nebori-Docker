@@ -3,10 +3,10 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { VideoCard } from "@/components/video-card";
-import type { VideoItem } from "@/data/mock";
+import type { VideoRead } from "@/services/metadataService";
 
 type SubscriptionsPageContentProps = {
-  videos: VideoItem[];
+  videos: VideoRead[];
 };
 
 type Channel = {
@@ -19,7 +19,7 @@ type Channel = {
 const tabs = [
   { label: "Для вас", href: "/" },
   { label: "Підписки", href: "/subscriptions" },
-  { label: "Популярне", href: "/popular" }
+  { label: "Популярне", href: "/popular" },
 ];
 
 const subscribedChannelNames = [
@@ -30,7 +30,7 @@ const subscribedChannelNames = [
   "Raid Signals",
   "Frontline Hub",
   "Community Hub",
-  "DeltaNox"
+  "DeltaNox",
 ];
 
 function buildChannels(videos: VideoItem[]): Channel[] {
@@ -41,20 +41,27 @@ function buildChannels(videos: VideoItem[]): Channel[] {
         name,
         handle: name.toLowerCase().replace(/\s+/g, "_"),
         avatar: `https://api.dicebear.com/9.x/thumbs/svg?seed=${encodeURIComponent(name)}`,
-        videosCount
+        videosCount,
       };
     })
     .filter((channel) => channel.videosCount > 0);
 }
 
-export function SubscriptionsPageContent({ videos }: SubscriptionsPageContentProps) {
+export function SubscriptionsPageContent({
+  videos,
+}: SubscriptionsPageContentProps) {
   const [selectedChannel, setSelectedChannel] = useState<string>("all");
 
   const channels = useMemo(() => buildChannels(videos), [videos]);
-  const subscribedSet = useMemo(() => new Set(channels.map((channel) => channel.name)), [channels]);
+  const subscribedSet = useMemo(
+    () => new Set(channels.map((channel) => channel.name)),
+    [channels],
+  );
 
   const filteredVideos = useMemo(() => {
-    const subscribedVideos = videos.filter((item) => subscribedSet.has(item.author));
+    const subscribedVideos = videos.filter((item) =>
+      subscribedSet.has(item.author),
+    );
     if (selectedChannel === "all") {
       return subscribedVideos;
     }
@@ -67,7 +74,11 @@ export function SubscriptionsPageContent({ videos }: SubscriptionsPageContentPro
         <div className="flex items-center justify-between gap-3">
           <nav className="flex flex-wrap gap-2">
             {tabs.map((tab, idx) => (
-              <Link key={tab.label} href={tab.href} className={`rounded-sm border px-3 py-1.5 text-sm ${idx === 1 ? "btn-primary" : "btn-ghost"}`}>
+              <Link
+                key={tab.label}
+                href={tab.href}
+                className={`rounded-sm border px-3 py-1.5 text-sm ${idx === 1 ? "btn-primary" : "btn-ghost"}`}
+              >
                 {tab.label}
               </Link>
             ))}
@@ -84,7 +95,8 @@ export function SubscriptionsPageContent({ videos }: SubscriptionsPageContentPro
                 : "border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.02)] text-nebori-muted hover:border-[rgba(255,255,255,0.22)] hover:text-nebori-text"
             }`}
           >
-            Усі підписки <span className="ml-1 text-xs opacity-60">{channels.length}</span>
+            Усі підписки{" "}
+            <span className="ml-1 text-xs opacity-60">{channels.length}</span>
           </button>
           {channels.map((channel) => (
             <button
@@ -97,7 +109,11 @@ export function SubscriptionsPageContent({ videos }: SubscriptionsPageContentPro
                   : "border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.02)] text-nebori-muted hover:border-[rgba(255,255,255,0.22)] hover:text-nebori-text"
               }`}
             >
-              <img src={channel.avatar} alt={channel.name} className="h-5 w-5 rounded-full object-cover" />
+              <img
+                src={channel.avatar}
+                alt={channel.name}
+                className="h-5 w-5 rounded-full object-cover"
+              />
               {channel.name}
             </button>
           ))}

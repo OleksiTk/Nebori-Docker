@@ -1,7 +1,8 @@
 import { SubscriptionsPageContent } from "@/components/subscriptions-page-content";
-import { videos } from "@/data/mock";
+import { listVideos } from "@/services/metadataService";
 
-export default function SubscriptionsPage() {
+export default async function SubscriptionsPage() {
+  const videos = await listVideos();
   return <SubscriptionsPageContent videos={videos} />;
 }
 

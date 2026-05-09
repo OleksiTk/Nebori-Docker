@@ -23,7 +23,7 @@ export async function uploadVideo(
   formData.append("user_id", String(userId));
   formData.append("file", file);
 
-  const response = await fetch(`${UPLOAD_API_URL}/videos/upload`, {
+  const response = await fetch(`${UPLOAD_API_URL}/videos/`, {
     method: "POST",
     body: formData,
   });

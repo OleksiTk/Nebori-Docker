@@ -1,7 +1,8 @@
 import { PopularPageContent } from "@/components/popular-page-content";
-import { videos } from "@/data/mock";
+import { listVideos } from "@/services/metadataService";
 
-export default function PopularPage() {
+export default async function PopularPage() {
+  const videos = await listVideos();
   return <PopularPageContent videos={videos} />;
 }
 

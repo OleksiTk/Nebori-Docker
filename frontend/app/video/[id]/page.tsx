@@ -1,13 +1,42 @@
 import Link from "next/link";
-import { threadComments, videos } from "@/data/mock";
+import { threadComments } from "@/data/mock";
 import { VideoDescription } from "@/components/video-description";
 import { CustomVideoPlayer } from "@/components/custom-video-player";
 import { CommentThread } from "@/components/comment-thread";
 import { ProfileHoverCard } from "@/components/profile-hover-card";
+import { getVideoMetadata, listVideos } from "@/services/metadataService";
+import { MINIO_API_URL, UPLOAD_API_URL } from "@/services/api";
 
 type PageProps = {
   params: Promise<{ id: string }>;
 };
+
+function formatDuration(seconds: number | null) {
+  if (seconds === null) return "0:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+function formatViews(count: number) {
+  if (count >= 1000000) return `${(count / 1000000).toFixed(1)} млн`;
+  if (count >= 1000) return `${(count / 1000).toFixed(1)} тис.`;
+  return count.toString();
+}
+
+function formatDate(dateStr: string) {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return "щойно";
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} хв тому`;
+  if (diffInSeconds < 86400)
+    return `${Math.floor(diffInSeconds / 3600)} год тому`;
+  if (diffInSeconds < 604800)
+    return `${Math.floor(diffInSeconds / 86400)} дн тому`;
+  return date.toLocaleDateString();
+}
 
 function LikeIcon() {
   return (
@@ -109,19 +138,60 @@ function MoreIcon() {
 
 export default async function VideoPage({ params }: PageProps) {
   const { id } = await params;
-  const current = videos.find((v) => v.id === id) ?? videos[0];
-  const recommended = videos.filter((v) => v.id !== current.id).slice(0, 12);
-  const demoVideoSrc =
-    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-  const demoPoster = `https://picsum.photos/seed/player-${current.id}/1280/720`;
+  const current = await getVideoMetadata(id);
+  const allVideos = await listVideos();
+  const recommended = allVideos.filter((v) => v.id !== current.id).slice(0, 12);
+  console.log(current, "vido");
+
+  // Get the best available HLS URL (prefer higher resolutions)
+  const hlsUrls = current.hls_urls || {};
+  // const resolutions = Object.keys(hlsUrls).sort((a, b) => {
+  //   const resA = parseInt(a) || 0;
+  //   const resB = parseInt(b) || 0;
+  //   return resB - resA;
+  // });
+  // let videoSrc = resolutions.length > 0 ? hlsUrls[resolutions[0]] : "";
+  const resolutions = Object.keys(hlsUrls)
+    .filter((k) => k !== "audio")
+    .sort((a, b) => (parseInt(b) || 0) - (parseInt(a) || 0));
+
+  let videoSrc = resolutions.length > 0 ? hlsUrls[resolutions[0]] : "";
+  if (videoSrc && !videoSrc.startsWith("http")) {
+    videoSrc = `${MINIO_API_URL}/${videoSrc.replace(/^\//, "")}`;
+  }
+
+  // Повні URL для перемикання якості в плеєрі
+  const fullHlsUrls: Record<string, string> = {};
+  for (const [key, val] of Object.entries(hlsUrls)) {
+    if (key === "audio") continue;
+    fullHlsUrls[key] = val.startsWith("http")
+      ? val
+      : `${MINIO_API_URL}/${videoSrc.replace(/^\//, "")}`;
+  }
+  if (videoSrc && !videoSrc.startsWith("http")) {
+    videoSrc = `${UPLOAD_API_URL}/${videoSrc.replace(/^\//, "")}`;
+  }
+  console.log(videoSrc);
+
+  let poster =
+    current.thumbnail_url ||
+    `https://picsum.photos/seed/player-${current.id}/1280/720`;
+  if (poster && !poster.startsWith("http")) {
+    poster = `${UPLOAD_API_URL}/${poster.replace(/^\//, "")}`;
+  }
+  console.log("hls_urls:", JSON.stringify(current.hls_urls, null, 2));
+  console.log("videoSrc:", videoSrc);
+  const authorName = `User ${current.user_id}`;
+  const authorHandle = authorName.toLowerCase().replace(/\s+/g, "_");
 
   return (
     <div className="grid grid-cols-1 gap-7 lg:grid-cols-[minmax(0,7fr)_minmax(320px,3fr)]">
       <section className="min-w-0">
         <CustomVideoPlayer
-          src={demoVideoSrc}
-          poster={demoPoster}
-          initialDuration={current.duration}
+          src={videoSrc}
+          poster={poster}
+          initialDuration={formatDuration(current.duration)}
+          hlsUrls={hlsUrls} // додай це
         />
         <h1 className="mt-4 text-[2rem] font-bold leading-tight">
           {current.title}
@@ -130,31 +200,31 @@ export default async function VideoPage({ params }: PageProps) {
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[6px] border border-[rgba(255,255,255,0.08)] bg-[#15151F] p-3">
           <div className="flex items-center gap-3">
             <ProfileHoverCard
-              handle={current.author.toLowerCase().replace(/\s+/g, "_")}
-              name={current.author}
-              avatar={`https://picsum.photos/seed/author-${encodeURIComponent(current.author)}/80/80`}
+              handle={authorHandle}
+              name={authorName}
+              avatar={`https://picsum.photos/seed/author-${current.user_id}/80/80`}
               videosCount={29}
               subscribers="12.4 тис."
             >
               <img
-                src={`https://picsum.photos/seed/author-${encodeURIComponent(current.author)}/80/80`}
-                alt={current.author}
+                src={`https://picsum.photos/seed/author-${current.user_id}/80/80`}
+                alt={authorName}
                 className="h-11 w-11 rounded-[6px] border border-[rgba(255,255,255,0.14)] object-cover"
               />
             </ProfileHoverCard>
             <div>
               <ProfileHoverCard
-                handle={current.author.toLowerCase().replace(/\s+/g, "_")}
-                name={current.author}
-                avatar={`https://picsum.photos/seed/author-${encodeURIComponent(current.author)}/80/80`}
+                handle={authorHandle}
+                name={authorName}
+                avatar={`https://picsum.photos/seed/author-${current.user_id}/80/80`}
                 videosCount={29}
                 subscribers="12.4 тис."
               >
                 <Link
-                  href={`/profile/${current.author.toLowerCase()}`}
+                  href={`/profile/${authorHandle}`}
                   className="text-base font-semibold text-nebori-accent hover:underline"
                 >
-                  {current.author}
+                  {authorName}
                 </Link>
               </ProfileHoverCard>
               <p className="text-xs text-nebori-muted">12.4 тис. підписників</p>
@@ -185,29 +255,23 @@ export default async function VideoPage({ params }: PageProps) {
 
         <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 border-b border-[rgba(255,255,255,0.08)] pb-4 text-sm">
           <Link
-            href={`/profile/${current.author.toLowerCase()}`}
+            href={`/profile/${authorHandle}`}
             className="font-semibold text-nebori-accent hover:underline"
           >
-            {current.author}
+            {authorName}
           </Link>
-          <span className="text-nebori-muted">{current.views} переглядів</span>
-          <span className="text-nebori-muted">{current.date}</span>
-          <div className="flex flex-wrap gap-2">
-            {current.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-[4px] border border-[rgba(255,255,255,0.14)] bg-[#141925] px-2 py-1 font-mono text-[11px] text-[#b8c0d4]"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
+          <span className="text-nebori-muted">
+            {formatViews(current.views_count)} переглядів
+          </span>
+          <span className="text-nebori-muted">
+            {formatDate(current.created_at)}
+          </span>
         </div>
 
         <VideoDescription
-          preview="Опис відео. Тут розміщується контекст випуску, корисні посилання та службова інформація автора."
-          fullText="Опис відео. Тут розміщується контекст випуску, корисні посилання та службова інформація автора. У повній версії опису можна додати додаткові примітки, таймкоди, відсилки до минулих випусків, правила обговорення та інші деталі, як це зроблено на YouTube."
-          metaLine="Технічні мітки: render:v1 | locale:uk | ui:nebori"
+          preview={current.description || "Опис відео відсутній."}
+          fullText={current.description || "Опис відео відсутній."}
+          metaLine={`Технічні мітки: render:v1 | id:${current.id} | status:${current.status}`}
         />
 
         <CommentThread comments={threadComments} className="mt-8" />
@@ -218,80 +282,92 @@ export default async function VideoPage({ params }: PageProps) {
           Рекомендовані
         </h3>
         <div className="space-y-2">
-          {recommended.map((item, idx) => (
-            <div
-              key={item.id}
-              className="group flex gap-2 rounded-[4px] px-1 py-1.5 hover:bg-[rgba(255,255,255,0.04)]"
-            >
-              <Link
-                href={`/video/${item.id}`}
-                className="relative h-[94px] w-[168px] flex-none overflow-hidden rounded-[4px] border border-[rgba(255,255,255,0.1)] transition-all duration-150 group-hover:border-[rgba(245,197,24,0.35)]"
+          {recommended.map((item, idx) => {
+            const recAuthorName = `User ${item.user_id}`;
+            const recAuthorHandle = recAuthorName
+              .toLowerCase()
+              .replace(/\s+/g, "_");
+
+            let recThumbnail = item.thumbnail_url;
+            if (recThumbnail && !recThumbnail.startsWith("http")) {
+              recThumbnail = `${UPLOAD_API_URL}/${recThumbnail.replace(/^\//, "")}`;
+            }
+
+            return (
+              <div
+                key={item.id}
+                className="group flex gap-2 rounded-[4px] px-1 py-1.5 hover:bg-[rgba(255,255,255,0.04)]"
               >
-                <img
-                  src={`https://picsum.photos/seed/reco-${item.id}/336/188`}
-                  alt={item.title}
-                  className="h-full w-full object-cover transition duration-150 group-hover:scale-[1.03] group-hover:brightness-110"
-                  loading="lazy"
-                />
-                {idx < 3 && (
-                  <span className="absolute left-1 top-1 rounded-[3px] bg-[rgba(245,197,24,0.92)] px-1 py-[1px] text-[10px] font-semibold uppercase tracking-[0.04em] text-black">
-                    Новинка
-                  </span>
-                )}
-                <span className="absolute bottom-1.5 right-1.5 rounded-[3px] bg-black/80 px-1.5 py-0.5 text-[11px] font-semibold text-white">
-                  {item.duration}
-                </span>
-              </Link>
-              <div className="min-w-0 flex-1">
                 <Link
                   href={`/video/${item.id}`}
-                  className="line-clamp-2 text-[15px] font-semibold leading-5 text-[#e6e9f3]"
+                  className="relative h-[94px] w-[168px] flex-none overflow-hidden rounded-[4px] border border-[rgba(255,255,255,0.1)] transition-all duration-150 group-hover:border-[rgba(245,197,24,0.35)]"
                 >
-                  {item.title}
+                  <img
+                    src={
+                      recThumbnail ||
+                      `https://picsum.photos/seed/reco-${item.id}/336/188`
+                    }
+                    alt={item.title}
+                    className="h-full w-full object-cover transition duration-150 group-hover:scale-[1.03] group-hover:brightness-110"
+                    loading="lazy"
+                  />
+                  {idx < 3 && (
+                    <span className="absolute left-1 top-1 rounded-[3px] bg-[rgba(245,197,24,0.92)] px-1 py-[1px] text-[10px] font-semibold uppercase tracking-[0.04em] text-black">
+                      Новинка
+                    </span>
+                  )}
+                  <span className="absolute bottom-1.5 right-1.5 rounded-[3px] bg-black/80 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                    {formatDuration(item.duration)}
+                  </span>
                 </Link>
-                <ProfileHoverCard
-                  handle={item.author.toLowerCase().replace(/\s+/g, "_")}
-                  name={item.author}
-                  avatar={`https://picsum.photos/seed/avatar-${encodeURIComponent(item.author)}/64/64`}
-                  videosCount={19}
-                  subscribers={`5.8 ${"\u0442\u0438\u0441."}`}
-                  className="mt-1 block"
-                >
-                  <div className="flex items-start gap-1.5">
-                    <img
-                      src={`https://picsum.photos/seed/avatar-${encodeURIComponent(item.author)}/64/64`}
-                      alt={item.author}
-                      className="mt-0.5 h-6 w-6 flex-none rounded-[2px] border border-[rgba(255,255,255,0.2)] object-cover"
-                      loading="lazy"
-                    />
-                    <div className="min-w-0">
-                      <Link
-                        href={`/profile/${item.author.toLowerCase().replace(/\s+/g, "_")}`}
-                        className="block truncate text-xs font-semibold text-[#d6dcec] hover:text-nebori-accent"
-                      >
-                        {item.author}
-                      </Link>
-                      <p className="truncate text-[11px] leading-4 text-nebori-muted">
-                        {item.views}{" "}
-                        {
-                          "\u043f\u0435\u0440\u0435\u0433\u043b\u044f\u0434\u0456\u0432"
-                        }
-                      </p>
-                      <p className="truncate text-[11px] leading-4 text-nebori-muted">
-                        {item.date}
-                      </p>
+                <div className="min-w-0 flex-1">
+                  <Link
+                    href={`/video/${item.id}`}
+                    className="line-clamp-2 text-[15px] font-semibold leading-5 text-[#e6e9f3]"
+                  >
+                    {item.title}
+                  </Link>
+                  <ProfileHoverCard
+                    handle={recAuthorHandle}
+                    name={recAuthorName}
+                    avatar={`https://picsum.photos/seed/avatar-${item.user_id}/64/64`}
+                    videosCount={19}
+                    subscribers={`5.8 тис.`}
+                    className="mt-1 block"
+                  >
+                    <div className="flex items-start gap-1.5">
+                      <img
+                        src={`https://picsum.photos/seed/avatar-${item.user_id}/64/64`}
+                        alt={recAuthorName}
+                        className="mt-0.5 h-6 w-6 flex-none rounded-[2px] border border-[rgba(255,255,255,0.2)] object-cover"
+                        loading="lazy"
+                      />
+                      <div className="min-w-0">
+                        <Link
+                          href={`/profile/${recAuthorHandle}`}
+                          className="block truncate text-xs font-semibold text-[#d6dcec] hover:text-nebori-accent"
+                        >
+                          {recAuthorName}
+                        </Link>
+                        <p className="truncate text-[11px] leading-4 text-nebori-muted">
+                          {formatViews(item.views_count)} переглядів
+                        </p>
+                        <p className="truncate text-[11px] leading-4 text-nebori-muted">
+                          {formatDate(item.created_at)}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </ProfileHoverCard>
+                  </ProfileHoverCard>
+                </div>
+                <button
+                  type="button"
+                  className="self-start rounded-[4px] p-1 text-nebori-muted hover:bg-[rgba(255,255,255,0.08)] hover:text-nebori-text"
+                >
+                  <MoreIcon />
+                </button>
               </div>
-              <button
-                type="button"
-                className="self-start rounded-[4px] p-1 text-nebori-muted hover:bg-[rgba(255,255,255,0.08)] hover:text-nebori-text"
-              >
-                <MoreIcon />
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </aside>
     </div>

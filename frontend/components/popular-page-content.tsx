@@ -3,10 +3,10 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { VideoCard } from "@/components/video-card";
-import type { VideoItem } from "@/data/mock";
+import type { VideoRead } from "@/services/metadataService";
 
 type PopularPageContentProps = {
-  videos: VideoItem[];
+  videos: VideoRead[];
 };
 
 type CategoryItem = {
@@ -17,10 +17,19 @@ type CategoryItem = {
 const tabs = [
   { label: "Для вас", href: "/" },
   { label: "Підписки", href: "/subscriptions" },
-  { label: "Популярне", href: "/popular" }
+  { label: "Популярне", href: "/popular" },
 ];
 
-const categoryOrder = ["Усі", "Ігри", "Аніме", "Технології", "Кіно", "Музика", "Освіта", "Кіберспорт"];
+const categoryOrder = [
+  "Усі",
+  "Ігри",
+  "Аніме",
+  "Технології",
+  "Кіно",
+  "Музика",
+  "Освіта",
+  "Кіберспорт",
+];
 
 const tagToCategory: Record<string, string> = {
   guide: "Ігри",
@@ -52,27 +61,12 @@ const tagToCategory: Record<string, string> = {
   esports: "Кіберспорт",
   tactics: "Кіберспорт",
   teamplay: "Кіберспорт",
-  ranking: "Кіберспорт"
+  ranking: "Кіберспорт",
 };
 
-function resolveCategory(item: VideoItem): string {
-  for (const tag of item.tags) {
-    const category = tagToCategory[tag];
-    if (category) {
-      return category;
-    }
-  }
+function resolveCategory(item: VideoRead): string {
+  // Since real backend might not have tags yet, default to "Ігри" or parse from description
   return "Ігри";
-}
-
-function parseViewsToScore(value: string): number {
-  const match = value.match(/[\d]+([.,]\d+)?/);
-  if (!match) {
-    return 0;
-  }
-  const numeric = Number.parseFloat(match[0].replace(",", "."));
-  const isThousands = value.includes("тис") || value.includes("С‚РёСЃ");
-  return Math.round(numeric * (isThousands ? 1000 : 1));
 }
 
 export function PopularPageContent({ videos }: PopularPageContentProps) {
@@ -81,9 +75,13 @@ export function PopularPageContent({ videos }: PopularPageContentProps) {
   const sortedVideos = useMemo(
     () =>
       [...videos]
-        .map((video) => ({ ...video, category: resolveCategory(video), score: parseViewsToScore(video.views) }))
+        .map((video) => ({
+          ...video,
+          category: resolveCategory(video),
+          score: video.views_count,
+        }))
         .sort((a, b) => b.score - a.score),
-    [videos]
+    [videos],
   );
 
   const categories = useMemo(() => {
@@ -95,7 +93,10 @@ export function PopularPageContent({ videos }: PopularPageContentProps) {
     for (const video of sortedVideos) {
       counts.set(video.category, (counts.get(video.category) ?? 0) + 1);
     }
-    return categoryOrder.map((name) => ({ name, count: counts.get(name) ?? 0 }));
+    return categoryOrder.map((name) => ({
+      name,
+      count: counts.get(name) ?? 0,
+    }));
   }, [sortedVideos]);
 
   const filteredVideos = useMemo(() => {
@@ -111,7 +112,11 @@ export function PopularPageContent({ videos }: PopularPageContentProps) {
         <div className="flex items-center justify-between gap-3">
           <nav className="flex flex-wrap gap-2">
             {tabs.map((tab, idx) => (
-              <Link key={tab.label} href={tab.href} className={`rounded-sm border px-3 py-1.5 text-sm ${idx === 2 ? "btn-primary" : "btn-ghost"}`}>
+              <Link
+                key={tab.label}
+                href={tab.href}
+                className={`rounded-sm border px-3 py-1.5 text-sm ${idx === 2 ? "btn-primary" : "btn-ghost"}`}
+              >
                 {tab.label}
               </Link>
             ))}
@@ -130,7 +135,8 @@ export function PopularPageContent({ videos }: PopularPageContentProps) {
                   : "border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.02)] text-nebori-muted hover:border-[rgba(255,255,255,0.22)] hover:text-nebori-text"
               }`}
             >
-              {category.name} <span className="ml-1 text-xs opacity-60">{category.count}</span>
+              {category.name}{" "}
+              <span className="ml-1 text-xs opacity-60">{category.count}</span>
             </button>
           ))}
         </div>
@@ -138,7 +144,12 @@ export function PopularPageContent({ videos }: PopularPageContentProps) {
         {filteredVideos.length > 0 ? (
           <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {filteredVideos.map((item, index) => (
-              <VideoCard key={item.id} item={item} index={index} rank={index + 1} />
+              <VideoCard
+                key={item.id}
+                item={item}
+                index={index}
+                rank={index + 1}
+              />
             ))}
           </div>
         ) : (
@@ -150,4 +161,3 @@ export function PopularPageContent({ videos }: PopularPageContentProps) {
     </section>
   );
 }
-
