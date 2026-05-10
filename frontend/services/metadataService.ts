@@ -1,4 +1,4 @@
-import { METADATA_API_URL, METADATA_BASE } from "./api";
+import { METADATA_API_URL } from "./api"; // Залишаємо один базовий URL
 
 export type VideoStatus =
   | "queued"
@@ -23,30 +23,15 @@ export type VideoRead = {
   created_at: string;
 };
 
-export async function createVideoMetadata(
-  title: string,
-  description?: string,
-): Promise<VideoRead> {
-  const response = await fetch(`${METADATA_API_URL}/videos/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ title, description }),
-  });
+// Хелпер для обробки помилок, щоб не дублювати код
+async function handleResponse<T>(response: Response, url?: string): Promise<T> {
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
-    throw new Error(errorData?.detail || "Failed to create video metadata");
-  }
-
-  return response.json();
-}
-
-export async function getVideoMetadata(videoId: string): Promise<VideoRead> {
-  const response = await fetch(`${METADATA_BASE}/videos/${videoId}`);
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(errorData?.detail || "Failed to get video metadata");
+    // Виводимо в консоль URL, щоб побачити, куди саме пішов запит
+    console.error(`[FETCH ERROR] 404 на адресі: ${response.url || url}`);
+    throw new Error(
+      errorData?.detail || `Request failed with status ${response.status}`,
+    );
   }
   return response.json();
 }
@@ -60,42 +45,46 @@ export async function listVideos(
     offset: offset.toString(),
   });
 
-  const response = await fetch(`${METADATA_BASE}/videos?${params.toString()}`);
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(errorData?.detail || "Failed to list videos");
-  }
-  return response.json();
+  // ВАЖЛИВО: пишемо /videos без кінцевого слеша!
+  const url = `${METADATA_API_URL}/videos?${params.toString()}`;
+
+  const response = await fetch(url);
+  return handleResponse<VideoRead[]>(response, url);
+}
+
+export async function createVideoMetadata(
+  title: string,
+  description?: string,
+): Promise<VideoRead> {
+  const response = await fetch(`${METADATA_API_URL}/videos`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ title, description }),
+  });
+  return handleResponse<VideoRead>(response);
+}
+
+export async function getVideoMetadata(videoId: string): Promise<VideoRead> {
+  const response = await fetch(`${METADATA_API_URL}/videos/${videoId}`);
+  return handleResponse<VideoRead>(response);
 }
 
 export async function updateVideoMetadata(
   videoId: string,
-  updates: {
-    title?: string;
-    description?: string;
-  },
+  updates: { title?: string; description?: string },
 ): Promise<VideoRead> {
   const response = await fetch(`${METADATA_API_URL}/videos/${videoId}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(updates),
   });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    throw new Error(errorData?.detail || "Failed to update video metadata");
-  }
-
-  return response.json();
+  return handleResponse<VideoRead>(response);
 }
 
 export async function deleteVideo(videoId: string): Promise<void> {
   const response = await fetch(`${METADATA_API_URL}/videos/${videoId}`, {
     method: "DELETE",
   });
-
   if (!response.ok) {
     const errorData = await response.json().catch(() => null);
     throw new Error(errorData?.detail || "Failed to delete video");
