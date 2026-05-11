@@ -39,9 +39,9 @@ export function HomePageContent({ videos }: HomePageContentProps) {
         </div>
 
         <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
-          {/* {videos.map((item, index) => (
+          {videos?.map((item, index) => (
             <VideoCard key={item.id} item={item} index={index} />
-          ))} */}
+          ))}
         </div>
       </div>
     </section>

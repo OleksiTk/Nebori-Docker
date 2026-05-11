@@ -76,7 +76,7 @@ export function Header() {
     let canceled = false;
     const loadAvatar = async () => {
       try {
-        const response = await fetch(`${USER_API_URL}/api/user/profile/me/`, {
+        const response = await fetch(`${USER_API_URL}/api/users/profile/me/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

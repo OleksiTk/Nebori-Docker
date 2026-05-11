@@ -46,7 +46,7 @@ export async function listVideos(
   });
 
   // ВАЖЛИВО: пишемо /videos без кінцевого слеша!
-  const url = `${METADATA_API_URL}/videos?${params.toString()}`;
+  const url = `${METADATA_API_URL}/videos/`;
 
   const response = await fetch(url);
   return handleResponse<VideoRead[]>(response, url);

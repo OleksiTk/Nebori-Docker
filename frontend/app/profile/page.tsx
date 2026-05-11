@@ -42,7 +42,7 @@ export default function ProfilePlaceholderPage() {
       setError("");
 
       try {
-        const response = await fetch(`${apiBaseUrl}/api/user/profile/me/`, {
+        const response = await fetch(`${apiBaseUrl}/api/users/profile/me/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

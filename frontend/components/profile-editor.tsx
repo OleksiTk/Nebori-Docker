@@ -32,12 +32,12 @@ export default function ProfileEditor() {
     const load = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${apiBase}/api/user/profile/me/`, {
+        const res = await fetch(`${apiBase}/api/users/profile/me/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
           // fallback to older endpoint
-          const res2 = await fetch(`${apiBase}/api/user/profile/`, {
+          const res2 = await fetch(`${apiBase}/api/users/profile/`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (!res2.ok) throw new Error("Failed to load profile");
@@ -76,7 +76,7 @@ export default function ProfileEditor() {
     setSavingName(true);
     setStatus("");
     try {
-      const res = await fetch(`${apiBase}/api/user/profile/settings/`, {
+      const res = await fetch(`${apiBase}/api/users/profile/settings/`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -100,7 +100,7 @@ export default function ProfileEditor() {
     try {
       const fd = new FormData();
       fd.append("avatar", file);
-      const res = await fetch(`${apiBase}/api/user/profile/change_avatar/`, {
+      const res = await fetch(`${apiBase}/api/users/profile/change_avatar/`, {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -111,7 +111,7 @@ export default function ProfileEditor() {
       const payload = await res.json().catch(() => ({}));
       setStatus("Avatar updated");
       // refresh profile
-      const refresh = await fetch(`${apiBase}/api/user/profile/me/`, {
+      const refresh = await fetch(`${apiBase}/api/users/profile/me/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (refresh.ok) {
